@@ -1,5 +1,10 @@
 package pt.feup.worldlivelink.Alumni;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +17,10 @@ import java.util.stream.Stream;
 
 @Component
 public class AlumniDaoService implements InitializingBean {
+    private static final MongoClient mongoClient = MongoClients.create("mongodb+srv://diogocoelho:lgp5d2019@mongocloud-jf8zo.azure.mongodb.net/test?retryWrites=true");
+    private static final MongoDatabase database = mongoClient.getDatabase("LGP5D");
+    private static final MongoCollection<Document> collection = database.getCollection("users");
+
     private static Map<Long, AlumniBean> alumni = new ConcurrentHashMap<>();
     private static AtomicLong ids = new AtomicLong();
 
@@ -47,5 +56,8 @@ public class AlumniDaoService implements InitializingBean {
                 .collect(Collectors.toMap(AlumniBean::getId, p->p));
 
         this.alumni.putAll(initialValues);
+
+
+
     }
 }
