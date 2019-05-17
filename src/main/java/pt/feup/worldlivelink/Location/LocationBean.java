@@ -10,9 +10,9 @@ public class LocationBean implements Serializable {
 
     private String city;
 
-    private float latitude;
+    private String latitude;
 
-    private float longitude;
+    private String longitude;
 
     public String getLocation() {
         return location;
@@ -30,19 +30,19 @@ public class LocationBean implements Serializable {
         this.city = city;
     }
 
-    public float getLatitude() {
+    public String getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(String latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public String getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(String longitude) {
         this.longitude = longitude;
     }
 }

@@ -1,5 +1,6 @@
 package pt.feup.worldlivelink.Controllers;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
@@ -54,14 +55,10 @@ public class AlumniController {
         }
     }
 
-    @GetMapping("/alumnibean")
-    public AlumniBean getAlumni() {
-        return new AlumniBean(4l, "John", "Boston");
-    }
-
-    @GetMapping("/alumnibyname/{name}")
+        @GetMapping("/alumnibyname/{name}")
     public AlumniBean getAlumniByName(@PathVariable String name) {
-        return new AlumniBean(0l, name, "Boston");
+        //TODO: resolve this later on
+        return null;
     }
 
     @GetMapping("/alumnibyid/{id}")
@@ -83,8 +80,8 @@ public class AlumniController {
     @GetMapping("/alumnibylocation/{location}")
     public Collection<AlumniBean> getAlumniByLocation(@PathVariable String location) {
         List<AlumniBean> alumni = new ArrayList<>();
-        alumni.add(new AlumniBean(1l,"John", location));
-        alumni.add(new AlumniBean(2l,"Simon", location));
+        //alumni.add(new AlumniBean(1l,"John", location));
+        //alumni.add(new AlumniBean(2l,"Simon", location));
 
         return alumni;
     }

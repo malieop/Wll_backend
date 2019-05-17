@@ -1,6 +1,7 @@
 package pt.feup.worldlivelink.Alumni;
 
 import org.springframework.stereotype.Component;
+import pt.feup.worldlivelink.Location.LocationBean;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
@@ -16,8 +17,7 @@ public class AlumniBean implements Serializable {
     @Size(min=2)
     String name;
 
-    // TODO:this will be a separate class later on
-    String location;
+    LocationBean location;
 
     @NotNull
     Long id;
@@ -26,7 +26,7 @@ public class AlumniBean implements Serializable {
     @Past
     Date birthdate;
 
-    public AlumniBean(Long id, String name, String location) {
+    public AlumniBean(Long id, String name, LocationBean location) {
         this.id = id;
         this.name = name;
         this.location = location;
@@ -41,11 +41,11 @@ public class AlumniBean implements Serializable {
         this.name = name;
     }
 
-    public String getLocation() {
+    public LocationBean getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(LocationBean location) {
         this.location = location;
     }
 
