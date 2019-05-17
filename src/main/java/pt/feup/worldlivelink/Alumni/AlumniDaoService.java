@@ -17,6 +17,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.mongodb.client.model.Filters.eq;
+
 @Component
 public class AlumniDaoService implements InitializingBean {
     private static final String mongoURL = "mongodb+srv://diogocoelho:lgp5d2019@mongocloud-jf8zo.azure.mongodb.net/test?retryWrites=true";
@@ -32,6 +34,18 @@ public class AlumniDaoService implements InitializingBean {
 
     public static Collection<AlumniBean> getAlumni() {
         return new ArrayList<>(alumni.values());
+    }
+
+    public static Collection<AlumniBean> getAlumniByName(final String name){
+        try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
+            MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
+            MongoCollection collection = database.getCollection(mongoDocument);
+            FindIterable<Document> findIterable = collection.find(new Document());
+            findIterable = collection.find(eq("name",name));
+
+
+        }
+
     }
 
     public static AlumniBean saveAlumni(final AlumniBean alumnus) {
@@ -71,28 +85,27 @@ public class AlumniDaoService implements InitializingBean {
 
 
 
-        MongoClient mongoClient = MongoClients.create(mongoURL);
-        MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
-        MongoCollection collection = database.getCollection(mongoDocument);
-        FindIterable<Document> findIterable = collection.find(new Document());
-        Block<Document> printBlock = new Block<Document>() {
-            @Override
-            public void apply(final Document document) {
-                try {
-                    JSONObject alumniJson = new JSONObject(document.toJson());
-                    setAlumniLocation(alumniJson);
-                    //System.out.println(alumniJson.getJSONObject("user").getString("id"));
-                    AlumniBean alumniBean = new AlumniBean(new Long(alumniJson.getString("user_id")), alumniJson.getJSONObject("user").getString("firstname"),setAlumniLocation(alumniJson));
-                    initialValues.put(alumniBean.getId(), alumniBean);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+        try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
+            MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
+            MongoCollection collection = database.getCollection(mongoDocument);
+            FindIterable<Document> findIterable = collection.find(new Document());
+            Block<Document> printBlock = new Block<Document>() {
+                @Override
+                public void apply(final Document document) {
+                    try {
+                        JSONObject alumniJson = new JSONObject(document.toJson());
+                        setAlumniLocation(alumniJson);
+                        //System.out.println(alumniJson.getJSONObject("user").getString("id"));
+                        AlumniBean alumniBean = new AlumniBean(new Long(alumniJson.getString("user_id")), alumniJson.getJSONObject("user").getString("firstname"), setAlumniLocation(alumniJson));
+                        initialValues.put(alumniBean.getId(), alumniBean);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-            }
-        };
-        findIterable.forEach(printBlock);
-        System.out.print("CHEGUEI");
-        mongoClient.close();
+                }
+            };
+            findIterable.forEach(printBlock);
+        }
         this.alumni.putAll(initialValues);
 
     }
