@@ -57,9 +57,8 @@ public class AlumniController {
 
         @GetMapping("/alumnibyname/{name}")
     public Collection<AlumniBean> getAlumniByName(@PathVariable String name) {
-        //TODO: resolve this later on
 
-        return AlumniDaoService.getAlumniByName(name);
+        return AlumniDaoService.    getAlumniByName(name);
     }
 
     @GetMapping("/alumnibyid/{id}")
@@ -80,11 +79,13 @@ public class AlumniController {
 
     @GetMapping("/alumnibylocation/{location}")
     public Collection<AlumniBean> getAlumniByLocation(@PathVariable String location) {
-        List<AlumniBean> alumni = new ArrayList<>();
-        //alumni.add(new AlumniBean(1l,"John", location));
-        //alumni.add(new AlumniBean(2l,"Simon", location));
 
-        return alumni;
+        return AlumniDaoService.getAlumniByLocation(location);
+    }
+    @GetMapping("/alumnibycourse/{course}")
+    public Collection<AlumniBean> getAlumniByCourse(@PathVariable String course) {
+
+        return AlumniDaoService.getAlumniByCourse(course);
     }
 
 }
