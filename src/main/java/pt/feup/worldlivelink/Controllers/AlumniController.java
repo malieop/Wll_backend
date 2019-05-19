@@ -59,7 +59,7 @@ public class AlumniController {
     public Collection<AlumniBean> getAlumniByName(@PathVariable String name) {
         //TODO: resolve this later on
 
-        return null;
+        return AlumniDaoService.getAlumniByName(name);
     }
 
     @GetMapping("/alumnibyid/{id}")
