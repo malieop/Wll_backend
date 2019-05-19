@@ -1,6 +1,5 @@
 package pt.feup.worldlivelink.Controllers;
 
-import java.io.IOException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pt.feup.worldlivelink.Storage.StorageFileNotFoundException;
 import pt.feup.worldlivelink.Storage.StorageService;
 
@@ -54,8 +52,7 @@ public class FileUploadController {
     }
 
     @PostMapping("/files/")
-    public ResponseEntity<Object> handleFileUpload(@RequestParam("file") MultipartFile file,
-                                   RedirectAttributes redirectAttributes) {
+    public ResponseEntity<Object> handleFileUpload(@RequestParam("file") MultipartFile file) {
 
         try {
             storageService.store(file);
