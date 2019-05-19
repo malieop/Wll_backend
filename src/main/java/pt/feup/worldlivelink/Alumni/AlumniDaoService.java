@@ -8,14 +8,11 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Component;
 import pt.feup.worldlivelink.Location.LocationBean;
-import sun.rmi.runtime.Log;
 
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.regex;
@@ -89,10 +86,10 @@ public class AlumniDaoService implements InitializingBean {
     public static LocationBean setAlumniLocation(JSONObject json){
         LocationBean location = new LocationBean();
         try {
-        location.setCity(json.getJSONObject("user").getJSONObject("location").getString("city"));
-        location.setLocation(json.getJSONObject("user").getJSONObject("location").getString("address"));
-        location.setLongitude(json.getJSONObject("user").getJSONObject("location").getString("longitude"));
-        location.setLatitude(json.getJSONObject("user").getJSONObject("location").getString("latitude"));
+            location.setCity(json.getJSONObject("user").getJSONObject("location").getString("city"));
+            location.setLocation(json.getJSONObject("user").getJSONObject("location").getString("address"));
+            location.setLongitude(json.getJSONObject("user").getJSONObject("location").getString("longitude"));
+            location.setLatitude(json.getJSONObject("user").getJSONObject("location").getString("latitude"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
