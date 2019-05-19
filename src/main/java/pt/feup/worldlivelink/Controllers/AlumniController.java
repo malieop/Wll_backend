@@ -56,8 +56,9 @@ public class AlumniController {
     }
 
         @GetMapping("/alumnibyname/{name}")
-    public AlumniBean getAlumniByName(@PathVariable String name) {
+    public Collection<AlumniBean> getAlumniByName(@PathVariable String name) {
         //TODO: resolve this later on
+
         return null;
     }
 
