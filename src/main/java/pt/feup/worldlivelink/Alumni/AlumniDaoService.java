@@ -2,6 +2,8 @@ package pt.feup.worldlivelink.Alumni;
 
 import com.mongodb.Block;
 import com.mongodb.client.*;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Indexes;
 import org.bson.Document;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -13,9 +15,11 @@ import pt.feup.worldlivelink.Location.LocationBean;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.regex;
+import static com.mongodb.client.model.Filters.*;
 
 @Component
 public class AlumniDaoService implements InitializingBean {
@@ -38,7 +42,7 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
             MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
             MongoCollection collection = database.getCollection(mongoDocument);
-            FindIterable<Document> findIterable =  collection.find(regex("user.firstname",name));
+            FindIterable<Document> findIterable =  collection.find(or(regex("user.lastname",name, "i"),regex("user.firstname",name, "i")));
             ArrayList<AlumniBean> alumnis = new ArrayList<>();
             //findIterable.iterator().forEach(alumni -> alumnis::add);
             for (Document alumni : findIterable){
@@ -50,6 +54,37 @@ public class AlumniDaoService implements InitializingBean {
             return alumnis;
         }
 
+    }
+
+    public static Collection<AlumniBean> getAlumniByLocation(final String location){
+        try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
+            MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
+            MongoCollection collection = database.getCollection(mongoDocument);
+            FindIterable<Document> findIterable =  collection.find(or(regex("user.location,address",location,"i"),regex("user.location.address",location,"i")));
+            ArrayList<AlumniBean> alumnis = new ArrayList<>();
+            for (Document alumni : findIterable){
+                Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
+                if(alumniBean.isPresent()){
+                    alumnis.add(alumniBean.get());
+                }
+            }
+            return alumnis;
+        }
+    }
+    public static Collection<AlumniBean> getAlumniByCourse(final String course){
+        try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
+            MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
+            MongoCollection collection = database.getCollection(mongoDocument);
+            FindIterable<Document> findIterable =  collection.find(or(regex("user.course.",course, "i"),regex("user.couse.name",course, "i")));
+            ArrayList<AlumniBean> alumnis = new ArrayList<>();
+            for (Document alumni : findIterable){
+                Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
+                if(alumniBean.isPresent()){
+                    alumnis.add(alumniBean.get());
+                }
+            }
+            return alumnis;
+        }
     }
 
     public static Optional<AlumniBean> createAlumniBean(Document alumni){
