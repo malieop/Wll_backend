@@ -1,6 +1,5 @@
 package pt.feup.worldlivelink.Controllers;
 
-import com.sun.xml.internal.bind.v2.TODO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
@@ -46,7 +45,7 @@ public class AlumniController {
 
             ControllerLinkBuilder link = linkTo(methodOn(this.getClass()).getAlumniById(savedAlumnus.getId()));
             Resource<AlumniBean> response = new Resource<AlumniBean>(savedAlumnus);
-            response.add(link.withRel("user-link"));
+            response.add(link.withRel("LoginUser-link"));
 
             return ResponseEntity.created(location).body(response);
         }
