@@ -35,7 +35,20 @@ public class AlumniDaoService implements InitializingBean {
     }
 
     public static Collection<AlumniBean> getAlumni() {
-        return new ArrayList<>(alumni.values());
+        try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
+            MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
+            MongoCollection collection = database.getCollection(mongoDocument);
+            FindIterable<Document> findIterable =  collection.find();
+            ArrayList<AlumniBean> alumnis = new ArrayList<>();
+            //findIterable.iterator().forEach(alumni -> alumnis::add);
+            for (Document alumni : findIterable){
+                Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
+                if(alumniBean.isPresent()){
+                    alumnis.add(alumniBean.get());
+                }
+            }
+            return alumnis;
+        }
     }
 
     public static Collection<AlumniBean> getAlumniByName(final String name){
@@ -86,13 +99,29 @@ public class AlumniDaoService implements InitializingBean {
             return alumnis;
         }
     }
+    public static Collection<AlumniBean> getAlumniByYear(final String year){
+        try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
+            MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
+            MongoCollection collection = database.getCollection(mongoDocument);
+            FindIterable<Document> findIterable =  collection.find(or(eq("user.course.courseyear.startdate", year),eq("user.course.courseyear.enddate", year)));
+            ArrayList<AlumniBean> alumnis = new ArrayList<>();
+            for (Document alumni : findIterable){
+                Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
+                if(alumniBean.isPresent()){
+                    alumnis.add(alumniBean.get());
+                }
+            }
+            return alumnis;
+        }
+    }
 
     public static Optional<AlumniBean> createAlumniBean(Document alumni){
+        //TODO MUDAR O CONSTRUTOR DO ALUMNIBEAN PARA DEVOLVER ISTO DIREITO
         try {
             JSONObject alumniJson = new JSONObject(alumni.toJson());
             setAlumniLocation(alumniJson);
             //System.out.println(alumniJson.getJSONObject("user").getString("id"));
-            AlumniBean alumniBean = new AlumniBean(new Long(alumniJson.getString("user_id")), alumniJson.getJSONObject("user").getString("firstname"), setAlumniLocation(alumniJson));
+            AlumniBean alumniBean = new AlumniBean(alumniJson.getString("_id"), alumniJson.getJSONObject("user").getString("name"), setAlumniLocation(alumniJson));
             return Optional.of(alumniBean);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -102,12 +131,30 @@ public class AlumniDaoService implements InitializingBean {
         return Optional.empty();
     }
 
-    public static AlumniBean saveAlumni(final AlumniBean alumnus) {
-        alumnus.setId(ids.incrementAndGet());
-
-        alumni.put(alumnus.getId(), alumnus);
-
-        return alumnus;
+    public static void saveAlumni(final AlumniRequestBean alumnus) {
+        try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
+            MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
+            MongoCollection collection = database.getCollection(mongoDocument);
+            String jsonAlumni ="\"user\":{\"name\":\""+alumnus.getName()+"\"," +
+                                        "\"email\":\""+alumnus.getEmail()+"\"," +
+                    "\"location\":{\"address\":\""+alumnus.getLocation().getLocation()+"\"," +
+                                "\"city\":\""+alumnus.getLocation().getCity()+"\"," +
+                                "\"latitude\":\""+alumnus.getLocation().getLatitude()+"\"," +
+                                "\"longitude\":\""+alumnus.getLocation().getLongitude()+"\"}," +
+                    "\"company\":{\"name\":\""+alumnus.getCompanyBean().getName()+"\"," +
+                                "\"email\":\""+alumnus.getCompanyBean().getEmail()+"\"," +
+                                "\"job\":\""+alumnus.getCompanyBean().getJob()+"\"," +
+                                "\"startdate\":\""+alumnus.getCompanyBean().getStartdate()+"\"}," +
+                    "\"course\":{\"name\":\""+alumnus.getCourse().getName()+"\"," +
+                                "\"university\":\""+alumnus.getCourse().getUniversity()+"\"," +
+                                "\"courseyear\":{\"startdate\":\""+alumnus.getCourse().getStartdate()+"\"," +
+                                                "\"enddate\":\""+alumnus.getCourse().getEnddate()+"\"}}}";
+            try {
+                collection.insertOne(jsonAlumni);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
     }
 
     public static boolean deleteAlumni(final Long id) {
@@ -134,30 +181,5 @@ public class AlumniDaoService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-
-        Map<Long, AlumniBean> initialValues = new HashMap<>();
-
-
-
-        try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
-            MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
-            MongoCollection collection = database.getCollection(mongoDocument);
-            FindIterable<Document> findIterable = collection.find(new Document());
-            Block<Document> printBlock = document -> {
-                try {
-                    JSONObject alumniJson = new JSONObject(document.toJson());
-                    setAlumniLocation(alumniJson);
-                    //System.out.println(alumniJson.getJSONObject("user").getString("id"));
-                    AlumniBean alumniBean = new AlumniBean(new Long(alumniJson.getString("user_id")), alumniJson.getJSONObject("user").getString("firstname"), setAlumniLocation(alumniJson));
-                    initialValues.put(alumniBean.getId(), alumniBean);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            };
-            findIterable.forEach(printBlock);
-        }
-        this.alumni.putAll(initialValues);
-
     }
 }
