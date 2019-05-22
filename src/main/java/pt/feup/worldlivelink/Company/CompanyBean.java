@@ -10,6 +10,11 @@ public class CompanyBean implements Serializable {
 
     private String email;
 
+    private String job;
+
+    private String startdate;
+
+
 
     public CompanyBean(){}
 
@@ -27,5 +32,20 @@ public class CompanyBean implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+    public String getJob() {
+        return job;
+    }
+
+    public void setJob(String job) {
+        this.job = job;
+    }
+
+    public String getStartdate() {
+        return startdate;
+    }
+
+    public void setStartdate(String startdate) {
+        this.startdate = startdate;
     }
 }

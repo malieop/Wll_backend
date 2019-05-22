@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pt.feup.worldlivelink.Alumni.AlumniBean;
 import pt.feup.worldlivelink.Alumni.AlumniDaoService;
+import pt.feup.worldlivelink.Alumni.AlumniRequestBean;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -32,26 +33,14 @@ public class AlumniController {
 
     // only application/json, application/*+json, application/json, application/*+json formats supported
     @PostMapping("/alumni")
-    public ResponseEntity<Resource<AlumniBean>> createAlumni(final @Valid @RequestBody AlumniBean alumnus) {
+    public ResponseEntity<Object> createAlumni(final @Valid @RequestBody AlumniRequestBean alumnus) {
         try {
-            AlumniBean savedAlumnus = alumniDaoService.saveAlumni(alumnus);
-
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentContextPath()
-                    .path("/alumnibyid/{id}")
-                    .buildAndExpand(savedAlumnus.getId())
-                    .toUri();
-
-
-            ControllerLinkBuilder link = linkTo(methodOn(this.getClass()).getAlumniById(savedAlumnus.getId()));
-            Resource<AlumniBean> response = new Resource<AlumniBean>(savedAlumnus);
-            response.add(link.withRel("LoginUser-link"));
-
-            return ResponseEntity.created(location).body(response);
+            alumniDaoService.saveAlumni(alumnus);
         }
         catch (Exception e) {
             return new ResponseEntity("failed to create alumni", HttpStatus.BAD_REQUEST);
         }
+        return new ResponseEntity("Created alumni", HttpStatus.OK);
     }
 
         @GetMapping("/alumnibyname/{name}")
@@ -85,6 +74,11 @@ public class AlumniController {
     public Collection<AlumniBean> getAlumniByCourse(@PathVariable String course) {
 
         return AlumniDaoService.getAlumniByCourse(course);
+    }
+    @GetMapping("/alumnibyyear/{year}")
+    public Collection<AlumniBean> getAlumniByYear(@PathVariable String year) {
+
+        return AlumniDaoService.getAlumniByYear(year);
     }
 
 }
