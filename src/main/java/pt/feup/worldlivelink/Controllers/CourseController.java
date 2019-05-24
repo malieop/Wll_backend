@@ -29,10 +29,42 @@ public class CourseController {
         return courseDaoService.getCourse();
     }
 
+    @PostMapping("/course")
+    public ResponseEntity<Resource<CourseBean>> createAlumni(final @Valid @RequestBody CourseBean course) {
+
+        try {
+            CourseBean savedAlumnus = courseDaoService.saveCourse(course);
+
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .path("/coursebyid/{id}")
+                    .buildAndExpand(savedAlumnus.getId())
+                    .toUri();
+
+
+            ControllerLinkBuilder link = linkTo(methodOn(this.getClass()).getcourseByID(savedAlumnus.getId()));
+            Resource<CourseBean> response = new Resource<CourseBean>(savedAlumnus);
+            response.add(link.withRel("LoginUser-link"));
+
+            return ResponseEntity.created(location).body(response);
+        }
+        catch (Exception e) {
+            return new ResponseEntity("failed to create alumni", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+
     @GetMapping("/coursebyname/{name}")
     public Collection<CourseBean> getcourseByName(@PathVariable String name) {
 
         return courseDaoService.getCourseByName(name);
+    }
+
+    @GetMapping("/coursebyid/{id}")
+    public Collection<CourseBean> getcourseByID(@PathVariable String id) {
+
+        return courseDaoService.getcourseByID(id);
     }
 
     @GetMapping("/coursebytype/{type}")

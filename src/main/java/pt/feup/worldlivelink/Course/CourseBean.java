@@ -6,26 +6,25 @@ import java.io.Serializable;
 
 public class CourseBean implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     @NotNull
     private String name;
 
-    @NotNull
     private String id;
 
-    @NotNull
-    private String initals;
+    private String initials;
 
-    @NotNull
     private String type;
 
     //Constructor without argument
     public CourseBean(){}
 
-    public CourseBean(String id,String name, String initals, String type ){
+    public CourseBean(String id,String name, String initials, String type ){
         this.name = name;
-        this.id = id;
-        this.initals = initals;
+        this.initials = initials;
         this.type = type;
+        this.id = id;
     }
 
     public String getName() {
@@ -44,12 +43,12 @@ public class CourseBean implements Serializable {
         this.id = id;
     }
 
-    public String getInitals() {
-        return initals;
+    public String getInitials() {
+        return initials;
     }
 
-    public void setInitals(String id) {
-        this.initals = initals;
+    public void setInitials(String id) {
+        this.initials = initials;
     }
 
     public String getType() {

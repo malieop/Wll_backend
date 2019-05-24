@@ -56,6 +56,26 @@ public class CourseDaoService implements InitializingBean {
 
     }
 
+    public static Collection<CourseBean> getcourseByID(String id){
+
+        try (MongoClient mongoClient = MongoClients.create(mongoURL)) {
+            MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
+            MongoCollection collection = database.getCollection(mongoDocument);
+            FindIterable<Document> findIterable =  collection.find(regex("_id",id, "i"));
+            ArrayList<CourseBean> courses = new ArrayList<>();
+            //findIterable.iterator().forEach(alumni -> alumnis::add);
+            for (Document course : findIterable){
+                Optional<CourseBean> courseBean = createCourseBean(course);
+                if(courseBean.isPresent()){
+                    courses.add(courseBean.get());
+                }
+            }
+            return courses;
+        }
+
+    }
+
+
     public static Collection<CourseBean> getCourseByName(String name){
 
         try (MongoClient mongoClient = MongoClients.create(mongoURL)) {
@@ -126,6 +146,13 @@ public class CourseDaoService implements InitializingBean {
         }
 
         return Optional.empty();
+    }
+
+    public static CourseBean saveCourse(final CourseBean course) {
+
+        courses.put(course.getId(), course);
+
+        return course;
     }
 
     @Override
