@@ -18,7 +18,9 @@ public class CourseBean implements Serializable {
     @NotNull
     private String type;
 
-    //Constructor without arguments
+    //Constructor without argument
+    public CourseBean(){}
+
     public CourseBean(String id,String name, String initals, String type ){
         this.name = name;
         this.id = id;
