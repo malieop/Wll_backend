@@ -14,6 +14,8 @@ public class LocationBean implements Serializable {
 
     private String longitude;
 
+
+
     public String getLocation() {
         return location;
     }
