@@ -13,8 +13,9 @@ public class CourseBean implements Serializable {
 
     private String id;
 
+    @NotNull
     private String initials;
-
+    @NotNull
     private String type;
 
     //Constructor without argument
@@ -47,7 +48,7 @@ public class CourseBean implements Serializable {
         return initials;
     }
 
-    public void setInitials(String id) {
+    public void setInitials(String initials) {
         this.initials = initials;
     }
 
@@ -55,7 +56,7 @@ public class CourseBean implements Serializable {
         return type;
     }
 
-    public void setType(String id) {
+    public void setType(String type) {
         this.type = type;
     }
 

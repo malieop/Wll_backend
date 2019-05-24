@@ -33,17 +33,17 @@ public class CourseController {
     public ResponseEntity<Resource<CourseBean>> createAlumni(final @Valid @RequestBody CourseBean course) {
 
         try {
-            CourseBean savedAlumnus = courseDaoService.saveCourse(course);
+            CourseBean savedcourse = courseDaoService.saveCourse(course);
 
             URI location = ServletUriComponentsBuilder
                     .fromCurrentContextPath()
                     .path("/coursebyid/{id}")
-                    .buildAndExpand(savedAlumnus.getId())
+                    .buildAndExpand(savedcourse.getId())
                     .toUri();
 
 
-            ControllerLinkBuilder link = linkTo(methodOn(this.getClass()).getcourseByID(savedAlumnus.getId()));
-            Resource<CourseBean> response = new Resource<CourseBean>(savedAlumnus);
+            ControllerLinkBuilder link = linkTo(methodOn(this.getClass()).getcourseByID(savedcourse.getId()));
+            Resource<CourseBean> response = new Resource<CourseBean>(savedcourse);
             response.add(link.withRel("LoginUser-link"));
 
             return ResponseEntity.created(location).body(response);
@@ -52,8 +52,14 @@ public class CourseController {
             return new ResponseEntity("failed to create alumni", HttpStatus.BAD_REQUEST);
         }
     }
+    @DeleteMapping("/course/{id}")
+    public ResponseEntity<Resource<CourseBean>> createAlumni(@PathVariable String id) {
 
-
+        if(courseDaoService.deleteCourse(id))
+            return new ResponseEntity("Deleted", HttpStatus.OK);
+        else
+            return new ResponseEntity("Failed to delete course", HttpStatus.BAD_REQUEST);
+    }
 
     @GetMapping("/coursebyname/{name}")
     public Collection<CourseBean> getcourseByName(@PathVariable String name) {
