@@ -25,6 +25,7 @@ public class AlumniRequestBean implements Serializable {
     CompanyBean company;
 
 
+    // TODO: ?? missing in mongo
     @NotNull
     @NotBlank
     String birthdate;

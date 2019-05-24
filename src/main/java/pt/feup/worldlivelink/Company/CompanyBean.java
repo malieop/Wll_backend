@@ -12,7 +12,7 @@ public class CompanyBean implements Serializable {
 
     private String job;
 
-    private String startdate;
+    private String startDate;
 
 
 
@@ -22,30 +22,35 @@ public class CompanyBean implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
+    public CompanyBean setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public CompanyBean setEmail(String email) {
         this.email = email;
+        return this;
     }
+
     public String getJob() {
         return job;
     }
 
-    public void setJob(String job) {
+    public CompanyBean setJob(final String job) {
         this.job = job;
+        return this;
     }
 
-    public String getStartdate() {
-        return startdate;
+    public String getStartDate() {
+        return startDate;
     }
 
-    public void setStartdate(String startdate) {
-        this.startdate = startdate;
+    public CompanyBean setStartDate(final String startDate) {
+        this.startDate = startDate;
+        return this;
     }
 }

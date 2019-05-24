@@ -20,15 +20,17 @@ public class CourseBean implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
+    public CourseBean setName(String name) {
         this.name = name;
+        return this;
     }
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public CourseBean setId(int id) {
         this.id = id;
+        return this;
     }
 }
