@@ -10,10 +10,20 @@ public class CourseBean implements Serializable {
     private String name;
 
     @NotNull
-    private int id;
+    private String id;
+
+    @NotNull
+    private String initals;
+
+    @NotNull
+    private String type;
 
     //Constructor without arguments
-    public CourseBean(){
+    public CourseBean(String id,String name, String initals, String type ){
+        this.name = name;
+        this.id = id;
+        this.initals = initals;
+        this.type = type;
     }
 
     public String getName() {
@@ -24,11 +34,28 @@ public class CourseBean implements Serializable {
         this.name = name;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
+
+    public String getInitals() {
+        return initals;
+    }
+
+    public void setInitals(String id) {
+        this.initals = initals;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String id) {
+        this.type = type;
+    }
+
 }
