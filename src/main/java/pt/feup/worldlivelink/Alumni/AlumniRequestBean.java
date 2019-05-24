@@ -36,25 +36,30 @@ public class AlumniRequestBean implements Serializable {
     @NotBlank
     String email;
 
+    public AlumniRequestBean() {
+
+    }
+
+
     public AlumniRequestBean(String name, LocationBean location){
         this.name = name;
         this.location = location;
     }
 
-    public AlumniRequestBean(String name, LocationBean location, UserCourseBean userCourse, String birthdate, CompanyBean companyBean ) {
+    public AlumniRequestBean(String name, LocationBean location, UserCourseBean userCourse, String birthdate, CompanyBean company ) {
         this.name = name;
         this.location = location;
         this.birthdate = birthdate;
         this.course=userCourse;
-        this.company=companyBean;
+        this.company=company;
     }
 
-    public CompanyBean getCompanyBean() {
+    public CompanyBean getCompany() {
         return company;
     }
 
-    public void setCompanyBean(CompanyBean companyBean) {
-        this.company = companyBean;
+    public void setCompany(CompanyBean company) {
+        this.company = company;
     }
 
     public String getName() {

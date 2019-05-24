@@ -135,20 +135,26 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
             MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
             MongoCollection collection = database.getCollection(mongoDocument);
-            String jsonAlumni ="\"user\":{\"name\":\""+alumnus.getName()+"\"," +
-                                        "\"email\":\""+alumnus.getEmail()+"\"," +
-                    "\"location\":{\"address\":\""+alumnus.getLocation().getLocation()+"\"," +
-                                "\"city\":\""+alumnus.getLocation().getCity()+"\"," +
-                                "\"latitude\":\""+alumnus.getLocation().getLatitude()+"\"," +
-                                "\"longitude\":\""+alumnus.getLocation().getLongitude()+"\"}," +
-                    "\"company\":{\"name\":\""+alumnus.getCompanyBean().getName()+"\"," +
-                                "\"email\":\""+alumnus.getCompanyBean().getEmail()+"\"," +
-                                "\"job\":\""+alumnus.getCompanyBean().getJob()+"\"," +
-                                "\"startdate\":\""+alumnus.getCompanyBean().getStartdate()+"\"}," +
-                    "\"course\":{\"name\":\""+alumnus.getCourse().getName()+"\"," +
-                                "\"university\":\""+alumnus.getCourse().getUniversity()+"\"," +
-                                "\"courseyear\":{\"startdate\":\""+alumnus.getCourse().getStartdate()+"\"," +
-                                                "\"enddate\":\""+alumnus.getCourse().getEnddate()+"\"}}}";
+            Document jsonAlumni = new Document("user" ,
+                                    new Document("name", alumnus.getName())
+                                            .append("email", alumnus.getEmail())
+                                            .append("location",
+                                                new Document("address", alumnus.getLocation().getLocation())
+                                                    .append("city", alumnus.getLocation().getCity())
+                                                    .append("latitude", alumnus.getLocation().getLatitude())
+                                                    .append("longitude", alumnus.getLocation().getLongitude()))
+                                            .append("company",
+                                                new Document("name", alumnus.getCompany().getName())
+                                                    .append("email", alumnus.getCompany().getEmail())
+                                                    .append("job", alumnus.getCompany().getJob())
+                                                    .append("startdate", alumnus.getCompany().getStartdate()))
+                                            .append("course",
+                                                new Document("name", alumnus.getCourse().getName())
+                                                    .append("university", alumnus.getCourse().getUniversity())
+                                                    .append("startdate",  alumnus.getCourse().getStartdate())
+                                                    .append("enddate",    alumnus.getCourse().getEnddate())
+                                            )
+                                    );
             try {
                 collection.insertOne(jsonAlumni);
             } catch (Exception e) {

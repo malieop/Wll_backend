@@ -38,12 +38,13 @@ public class AlumniController {
             alumniDaoService.saveAlumni(alumnus);
         }
         catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity("failed to create alumni", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity("Created alumni", HttpStatus.OK);
     }
 
-        @GetMapping("/alumnibyname/{name}")
+    @GetMapping("/alumnibyname/{name}")
     public Collection<AlumniBean> getAlumniByName(@PathVariable String name) {
 
         return AlumniDaoService.    getAlumniByName(name);
