@@ -36,7 +36,7 @@ public class UserCourseBean implements Serializable {
         return startDate;
     }
 
-    public UserCourseBean setStartDate(String startDate) {
+    public UserCourseBean setStartDate(final String startDate) {
         this.startDate = startDate;
         return this;
     }

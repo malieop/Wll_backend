@@ -88,7 +88,7 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
             MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
             MongoCollection collection = database.getCollection(mongoDocument);
-            FindIterable<Document> findIterable =  collection.find(or(regex("user.course.",course, "i"),regex("user.couse.name",course, "i")));
+            FindIterable<Document> findIterable =  collection.find(or(regex("user.course.",course, "i"),regex("user.course.name",course, "i")));
             ArrayList<AlumniBean> alumnis = new ArrayList<>();
             for (Document alumni : findIterable){
                 Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
@@ -142,6 +142,8 @@ public class AlumniDaoService implements InitializingBean {
             UserCourseBean course = new UserCourseBean()
                     .setName(courseJson.getString("name"))
                     .setUniversity(courseJson.getString("university"))
+                    .setStartDate(courseJson.getString("startdate"))
+                    .setEndDate(courseJson.getString("enddate"))
                     ;
 
             alumniBean.setCourse(course);
