@@ -32,16 +32,18 @@ public class CourseBean implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
+    public CourseBean setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public CourseBean setId(int id) {
         this.id = id;
+        return this;
     }
 
     public String getInitials() {

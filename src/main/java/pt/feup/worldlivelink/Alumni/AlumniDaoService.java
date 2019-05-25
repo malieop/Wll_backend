@@ -1,23 +1,18 @@
 package pt.feup.worldlivelink.Alumni;
 
-import com.mongodb.Block;
 import com.mongodb.client.*;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Indexes;
 import org.bson.Document;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Component;
+import pt.feup.worldlivelink.Company.CompanyBean;
 import pt.feup.worldlivelink.Location.LocationBean;
 
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.mongodb.client.model.Filters.*;
 
@@ -35,11 +30,12 @@ public class AlumniDaoService implements InitializingBean {
     }
 
     public static Collection<AlumniBean> getAlumni() {
+        ArrayList<AlumniBean> alumnis = new ArrayList<>();
+
         try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
             MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
             MongoCollection collection = database.getCollection(mongoDocument);
             FindIterable<Document> findIterable =  collection.find();
-            ArrayList<AlumniBean> alumnis = new ArrayList<>();
             //findIterable.iterator().forEach(alumni -> alumnis::add);
             for (Document alumni : findIterable){
                 Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
@@ -47,8 +43,12 @@ public class AlumniDaoService implements InitializingBean {
                     alumnis.add(alumniBean.get());
                 }
             }
-            return alumnis;
         }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return alumnis;
     }
 
     public static Collection<AlumniBean> getAlumniByName(final String name){
@@ -121,7 +121,31 @@ public class AlumniDaoService implements InitializingBean {
             JSONObject alumniJson = new JSONObject(alumni.toJson());
             setAlumniLocation(alumniJson);
             //System.out.println(alumniJson.getJSONObject("user").getString("id"));
-            AlumniBean alumniBean = new AlumniBean(alumniJson.getString("_id"), alumniJson.getJSONObject("user").getString("name"), setAlumniLocation(alumniJson));
+
+            JSONObject user =  alumniJson.getJSONObject("user");
+            AlumniBean alumniBean = new AlumniBean(alumniJson.getJSONObject("_id").getString("$oid"),
+                                                   user.getString("name"),
+                                                   setAlumniLocation(alumniJson));
+
+            JSONObject companyJson = user.getJSONObject("company");
+            CompanyBean company = new CompanyBean()
+                    .setName(companyJson.getString("name"))
+                    .setEmail(companyJson.getString("email"))
+                    .setJob(companyJson.getString("job"))
+                    .setStartDate(companyJson.getString("startdate"))
+                    ;
+
+            alumniBean.setCompany(company);
+            alumniBean.setEmail(user.getString("email"));
+
+            JSONObject courseJson = user.getJSONObject("course");
+            UserCourseBean course = new UserCourseBean()
+                    .setName(courseJson.getString("name"))
+                    .setUniversity(courseJson.getString("university"))
+                    ;
+
+            alumniBean.setCourse(course);
+
             return Optional.of(alumniBean);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -147,12 +171,12 @@ public class AlumniDaoService implements InitializingBean {
                                                 new Document("name", alumnus.getCompany().getName())
                                                     .append("email", alumnus.getCompany().getEmail())
                                                     .append("job", alumnus.getCompany().getJob())
-                                                    .append("startdate", alumnus.getCompany().getStartdate()))
+                                                    .append("startdate", alumnus.getCompany().getStartDate()))
                                             .append("course",
                                                 new Document("name", alumnus.getCourse().getName())
                                                     .append("university", alumnus.getCourse().getUniversity())
-                                                    .append("startdate",  alumnus.getCourse().getStartdate())
-                                                    .append("enddate",    alumnus.getCourse().getEnddate())
+                                                    .append("startdate",  alumnus.getCourse().getStartDate())
+                                                    .append("enddate",    alumnus.getCourse().getEndDate())
                                             )
                                     );
             try {

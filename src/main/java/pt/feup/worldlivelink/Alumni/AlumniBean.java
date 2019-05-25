@@ -20,6 +20,7 @@ public class AlumniBean extends AlumniRequestBean {
 
     public AlumniBean(String id, String name, LocationBean location) {
         super(name, location);
+        this.id = id;
     }
 
     public String getId() {

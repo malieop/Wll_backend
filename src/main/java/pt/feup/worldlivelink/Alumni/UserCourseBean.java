@@ -1,7 +1,6 @@
 package pt.feup.worldlivelink.Alumni;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -12,11 +11,12 @@ public class UserCourseBean implements Serializable {
 
     @NotNull
     private String university;
+
     @NotNull
     @NotBlank
-    private String startdate;
+    private String startDate;
 
-    private String enddate;
+    private String endDate;
 
 
     //Constructor without arguments
@@ -27,31 +27,36 @@ public class UserCourseBean implements Serializable {
         return university;
     }
 
-    public void setUniversity(String university) {
+    public UserCourseBean setUniversity(String university) {
         this.university = university;
+        return this;
     }
 
-    public String getStartdate() {
-        return startdate;
+    public String getStartDate() {
+        return startDate;
     }
 
-    public void setStartdate(String startdate) {
-        this.startdate = startdate;
+    public UserCourseBean setStartDate(String startDate) {
+        this.startDate = startDate;
+        return this;
     }
 
-    public String getEnddate() {
-        return enddate;
+    public String getEndDate() {
+        return endDate;
     }
 
-    public void setEnddate(String enddate) {
-        this.enddate = enddate;
+    public UserCourseBean setEndDate(String endDate) {
+        this.endDate = endDate;
+        return this;
     }
+
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public UserCourseBean setName(String name) {
         this.name = name;
+        return this;
     }
 
 }
