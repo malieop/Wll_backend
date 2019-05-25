@@ -42,18 +42,20 @@ public class CourseController {
                     .toUri();
 
 
-            ControllerLinkBuilder link = linkTo(methodOn(this.getClass()).getcourseByID(savedcourse.getId()));
-            Resource<CourseBean> response = new Resource<CourseBean>(savedcourse);
-            response.add(link.withRel("LoginUser-link"));
+            // return link for the course that was created
+            ControllerLinkBuilder link = linkTo(methodOn(this.getClass()).getCourseByID(savedcourse.getId()));
+            Resource<CourseBean> response = new Resource<>(savedcourse);
+            response.add(link.withRel("course-link"));
 
             return ResponseEntity.created(location).body(response);
         }
         catch (Exception e) {
-            return new ResponseEntity("failed to create alumni", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("failed to create course", HttpStatus.BAD_REQUEST);
         }
     }
+
     @DeleteMapping("/course/{id}")
-    public ResponseEntity<Resource<CourseBean>> createAlumni(@PathVariable String id) {
+    public ResponseEntity<Resource<CourseBean>> deleteCourse(@PathVariable String id) {
 
         if(courseDaoService.deleteCourse(id))
             return new ResponseEntity("Deleted", HttpStatus.OK);
@@ -62,25 +64,25 @@ public class CourseController {
     }
 
     @GetMapping("/coursebyname/{name}")
-    public Collection<CourseBean> getcourseByName(@PathVariable String name) {
+    public Collection<CourseBean> getCourseByName(@PathVariable String name) {
 
         return courseDaoService.getCourseByName(name);
     }
 
     @GetMapping("/coursebyid/{id}")
-    public Collection<CourseBean> getcourseByID(@PathVariable String id) {
+    public Collection<CourseBean> getCourseByID(@PathVariable String id) {
 
         return courseDaoService.getcourseByID(id);
     }
 
     @GetMapping("/coursebytype/{type}")
-    public Collection<CourseBean> getcourseByType(@PathVariable String type) {
+    public Collection<CourseBean> getCourseByType(@PathVariable String type) {
 
         return courseDaoService.getCourseByType(type);
     }
 
     @GetMapping("/coursebyinitials/{initials}")
-    public Collection<CourseBean> getcourseByInitials(@PathVariable String initials) {
+    public Collection<CourseBean> getCourseByInitials(@PathVariable String initials) {
 
         return courseDaoService.getCourseByInitials(initials);
     }
