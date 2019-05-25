@@ -71,6 +71,7 @@ public class AlumniController {
 
         return AlumniDaoService.getAlumniByLocation(location);
     }
+
     @GetMapping("/alumnibycourse/{course}")
     public Collection<AlumniBean> getAlumniByCourse(@PathVariable String course) {
 
