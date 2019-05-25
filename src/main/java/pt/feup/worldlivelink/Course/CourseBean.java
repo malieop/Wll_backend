@@ -41,7 +41,7 @@ public class CourseBean implements Serializable {
         return id;
     }
 
-    public CourseBean setId(int id) {
+    public CourseBean setId(String id) {
         this.id = id;
         return this;
     }
