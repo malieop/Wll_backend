@@ -56,7 +56,7 @@ public class AlumniController {
     }
 
     @DeleteMapping("/alumnibyid/{id}")
-    public ResponseEntity<Object> deleteAlumniById(@PathVariable Long id) {
+    public ResponseEntity<Object> deleteAlumniById(@PathVariable String id) {
 
         if (alumniDaoService.deleteAlumni(id)) {
             return ResponseEntity.ok().build();

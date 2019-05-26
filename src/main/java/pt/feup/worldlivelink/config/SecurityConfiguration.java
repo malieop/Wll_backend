@@ -1,59 +1,76 @@
 package pt.feup.worldlivelink.config;
 
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-//import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-//import org.springframework.security.core.userdetails.User;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import pt.feup.worldlivelink.Services.MongoUserDetailsService;
 
-//@Slf4j
-//@Configuration
-//@EnableWebSecurity
-//@RequiredArgsConstructor
-//public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+@Slf4j
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    // TODO: remove this
-    // hardcoded users for testing
-//    @Override
-//    public void configure(AuthenticationManagerBuilder auth)
-//            throws Exception {
-//
-//        auth.inMemoryAuthentication()
-//                .withUser( User.withDefaultPasswordEncoder()
-//                               .username("user")
-//                               .password("password")
-//                               .roles("USER"));
+    @Autowired
+    MongoUserDetailsService userDetailsService;
 
-//        auth.inMemoryAuthentication()
-//                .withUser( User.withDefaultPasswordEncoder()
-//                               .username("admin")
-//                               .password("password")
-//                               .roles("ADMIN")
-//                );
-//
-//    }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Override
+    public void configure(AuthenticationManagerBuilder builder) throws Exception {
+        builder.userDetailsService(userDetailsService);
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+
+        http
+                .csrf().disable()
+                .authorizeRequests()
+                .regexMatchers("/",
+                        "/webjars/.*", // used by swagger
+                        "/swagger-.*", // used by swagger
+                        "/css/.*",
+                        "/alumni",
+                        "/login")
+                .permitAll()
+                .and()
+
+                .authorizeRequests()
+                .anyRequest()
+                .authenticated()
+                .and()
+
+                .formLogin().loginPage("/login")
+                .and()
+                .httpBasic()
+        ;
+
+    }
+
+    @Override
+    public void configure(WebSecurity web) {
+        web.ignoring().antMatchers("/v2/api-docs",
+                "/configuration/ui",
+                "/swagger-resources",
+                "/configuration/security",
+                "/swagger-ui.html",
+                "/webjars/**");
+    }
 
 
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//
-//        http.authorizeRequests()
-//                .antMatchers("/css/**", "/webjars/**", "/login").permitAll()
-////                .antMatchers("/**").hasRole("ADMIN")
-//                .antMatchers("/**").hasRole("USER")
-//                .and()
-//
-//                .formLogin().loginPage("/login")
-//                .and()
-//                .httpBasic().realmName("securityintro");
-//
-//        // TODO: remove this, only here for testing
-//        http.csrf().disable();
-//    }
 
-//}
+}
 

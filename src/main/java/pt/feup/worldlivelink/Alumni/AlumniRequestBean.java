@@ -1,15 +1,13 @@
 
 package pt.feup.worldlivelink.Alumni;
-import org.springframework.stereotype.Component;
+
 import pt.feup.worldlivelink.Company.CompanyBean;
 import pt.feup.worldlivelink.Location.LocationBean;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Date;
 
 
 //@Component
@@ -17,12 +15,22 @@ public class AlumniRequestBean implements Serializable {
 
     @NotNull
     @Size(min=2)
-    String name;
+    private String name;
 
     @NotNull
-    LocationBean location;
+    private LocationBean location;
 
-    CompanyBean company;
+    private CompanyBean company;
+
+    @NotNull
+    @NotBlank
+    @Size(min=2)
+    public String username;
+
+    @NotNull
+    @NotBlank
+    @Size(min=2)
+    public String password;
 
 
     // TODO: ?? missing in mongo
@@ -37,9 +45,7 @@ public class AlumniRequestBean implements Serializable {
     @NotBlank
     String email;
 
-    public AlumniRequestBean() {
-
-    }
+    public AlumniRequestBean() {}
 
 
     public AlumniRequestBean(String name, LocationBean location){
@@ -103,5 +109,19 @@ public class AlumniRequestBean implements Serializable {
         this.email = email;
     }
 
+    public void setPassword(final String password) {
+        this.password = password;
+    }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setUsername(final String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
+    }
 }
