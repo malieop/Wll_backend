@@ -193,6 +193,8 @@ public class AlumniDaoService implements InitializingBean {
             UserCourseBean course = new UserCourseBean()
                     .setName(courseJson.getString("name"))
                     .setUniversity(courseJson.getString("university"))
+                    .setStartDate(courseJson.getString("startdate"))
+                    .setEndDate(courseJson.getString("enddate"))
                     ;
 
             alumniBean.setCourse(course);
