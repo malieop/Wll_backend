@@ -1,23 +1,15 @@
 package pt.feup.worldlivelink.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pt.feup.worldlivelink.Alumni.AlumniBean;
 import pt.feup.worldlivelink.Alumni.AlumniDaoService;
 import pt.feup.worldlivelink.Alumni.AlumniRequestBean;
 
 import javax.validation.Valid;
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
 
 @RestController
@@ -56,7 +48,7 @@ public class AlumniController {
     }
 
     @DeleteMapping("/alumnibyid/{id}")
-    public ResponseEntity<Object> deleteAlumniById(@PathVariable Long id) {
+    public ResponseEntity<Object> deleteAlumniById(@PathVariable String id) {
 
         if (alumniDaoService.deleteAlumni(id)) {
             return ResponseEntity.ok().build();
