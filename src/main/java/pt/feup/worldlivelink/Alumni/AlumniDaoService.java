@@ -1,16 +1,26 @@
 package pt.feup.worldlivelink.Alumni;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.MongoException;
 import com.mongodb.client.*;
 import org.bson.Document;
+import org.bson.types.Binary;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import pt.feup.worldlivelink.Company.CompanyBean;
 import pt.feup.worldlivelink.Location.LocationBean;
 
-
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -25,8 +35,32 @@ public class AlumniDaoService implements InitializingBean {
     private static Map<Long, AlumniBean> alumni = new ConcurrentHashMap<>();
     private static AtomicLong ids = new AtomicLong();
 
-    public static AlumniBean getAlumniById(Long id) {
-        return alumni.get(id);
+    public static Optional<AlumniBean> getAlumniById(final String alumni_id) {
+
+        if (!StringUtils.hasText(alumni_id)) {
+            return Optional.empty();
+        }
+
+        try (  MongoClient mongoClient = MongoClients.create(mongoURL)) {
+            MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
+            MongoCollection collection = database.getCollection(mongoDocument);
+
+            BasicDBObject query = new BasicDBObject("_id",new ObjectId(alumni_id));
+            FindIterable<Document> findIterable = collection.find(query);
+
+            for (Document alumni : findIterable){
+                Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
+                if(alumniBean.isPresent()){
+                    return alumniBean;
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
+
     }
 
     public static Collection<AlumniBean> getAlumni() {
