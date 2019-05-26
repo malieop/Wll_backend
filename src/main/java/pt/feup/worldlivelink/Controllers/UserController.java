@@ -1,15 +1,17 @@
 package pt.feup.worldlivelink.Controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-//import pt.feup.worldlivelink.Authentication.*;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+
+//import pt.feup.worldlivelink.Authentication.*;
 
 @Slf4j
 @RestController
@@ -60,14 +62,16 @@ public class UserController {
 //    }
 
     @GetMapping("/login")
-    public String login(Model model, @RequestParam Optional<String> error) {
+    public ResponseEntity<Resource> login(Model model, @RequestParam Optional<String> error) {
 
         if (error.isPresent()) {
             log.error("error");
             log.info("Incorrect login, warning the LoginUser");
             model.addAttribute("loginError", "true");
+            return new ResponseEntity("authentication failed", HttpStatus.FORBIDDEN);
         }
-        return "login";
+
+        return new ResponseEntity("authentication success", HttpStatus.OK);
     }
 
 
