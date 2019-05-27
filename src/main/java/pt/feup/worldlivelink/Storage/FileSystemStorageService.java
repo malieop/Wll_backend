@@ -1,21 +1,31 @@
 package pt.feup.worldlivelink.Storage;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.stream.Stream;
-
+import com.mongodb.BasicDBObject;
+import com.mongodb.MongoException;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
+import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import pt.feup.worldlivelink.Alumni.AlumniBean;
+import pt.feup.worldlivelink.Alumni.AlumniDaoService;
+import pt.feup.worldlivelink.Alumni.MongoHelper;
+import pt.feup.worldlivelink.Photo.PhotoBean;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static com.mongodb.client.model.Filters.or;
+import static com.mongodb.client.model.Filters.regex;
 
 @Service
 public class FileSystemStorageService implements StorageService {
@@ -28,7 +38,7 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public void store(MultipartFile file) {
+    public void store(final MultipartFile file, final String alumni_id) {
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if (file.isEmpty()) {
@@ -39,12 +49,16 @@ public class FileSystemStorageService implements StorageService {
                 throw new StorageException("Cannot store file with relative path outside current directory "
                                 + filename);
             }
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, this.rootLocation.resolve(filename),
-                    StandardCopyOption.REPLACE_EXISTING);
+
+            Optional<AlumniBean> optionalAlumniBean = AlumniDaoService.getAlumniById(alumni_id);
+            if (!optionalAlumniBean.isPresent()) {
+                throw new StorageException("Alumni not found. Failed to store file " + filename);
             }
+
+
+            FileSystemStorageService.withoutUsingGridFS(filename, alumni_id, file.getBytes());
         }
-        catch (IOException e) {
+        catch (Exception e) {
             throw new StorageException("Failed to store file " + filename, e);
         }
     }
@@ -68,22 +82,71 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public Resource loadAsResource(String filename) {
-        try {
-            Path file = load(filename);
-            Resource resource = new UrlResource(file.toUri());
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            }
-            else {
-                throw new StorageFileNotFoundException(
-                        "Could not read file: " + filename);
+    public Optional<PhotoBean> loadAsResource(final String alumni_id) {
+        try (MongoClient mongoClient = MongoHelper.getMongoClient()) {
+            MongoCollection collection = MongoHelper.getFilesCollection(mongoClient);
 
+
+            return retrieve(alumni_id, collection);
+
+        }
+        catch (Exception e) {
+            System.out.println("Could not read alumni photo: " + alumni_id);
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    public static void withoutUsingGridFS(final String filename, final String alumni_id, final byte b[]) {
+        try (MongoClient mongoClient = MongoHelper.getMongoClient()) {
+            MongoCollection collection = MongoHelper.getFilesCollection(mongoClient);
+
+            Binary data = new Binary(b);
+            BasicDBObject o = new BasicDBObject();
+            o.append("photo", data);
+
+            Document jsonAlumni = new Document("file" ,
+                    new Document("alumni_id", alumni_id)
+                            .append("photo", o)
+                            .append("filename", filename)
+            );
+
+
+
+            collection.insertOne(jsonAlumni);
+
+            System.out.println(" file saved to Mongo");
+
+        } catch (MongoException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Optional<PhotoBean> retrieve(final String alumniId, final MongoCollection collection) {
+
+        try {
+            FindIterable<Document> findIterable = collection.find(or(regex("file.alumni_id", alumniId, "i")));
+
+            for (Document photo : findIterable){
+
+                if (photo.containsKey("file")) {
+                    Document file = (Document) photo.get("file");
+
+                    return Optional.of(new PhotoBean()
+                                        .setAlumni_id((String) file.get("alumni_id"))
+                                        .setFilename((String) file.get("filename"))
+                                        .setBytes(((Binary)((Document) file.get("photo")).get("photo")).getData())
+                            );
+                }
             }
+
+
         }
-        catch (MalformedURLException e) {
-            throw new StorageFileNotFoundException("Could not read file: " + filename, e);
+        catch (Exception e) {
+            e.printStackTrace();
         }
+
+        return Optional.empty();
     }
 
     @Override

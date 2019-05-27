@@ -1,13 +1,10 @@
 package pt.feup.worldlivelink.Alumni;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.BasicDBObject;
-import com.mongodb.MongoException;
-import com.mongodb.client.*;
 import org.bson.Document;
-import org.bson.types.Binary;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -18,13 +15,6 @@ import org.springframework.util.StringUtils;
 import pt.feup.worldlivelink.Company.CompanyBean;
 import pt.feup.worldlivelink.Location.LocationBean;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -326,4 +316,5 @@ public class AlumniDaoService implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
     }
+
 }

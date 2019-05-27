@@ -10,11 +10,20 @@ public class MongoHelper {
     private static final String mongoURL = "mongodb+srv://diogocoelho:lgp5d2019@mongocloud-jf8zo.azure.mongodb.net/test?retryWrites=true";
     private static final String mongoDataBase = "LGP5D";
     private static final String mongoDocument = "users";
+    private static final String mongoFilesDocument = "files";
 
     public static MongoCollection getCollection(MongoClient mongoClient) {
 
         MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
         MongoCollection collection = database.getCollection(mongoDocument);
+
+        return collection;
+    }
+
+    public static MongoCollection getFilesCollection(MongoClient mongoClient) {
+
+        MongoDatabase database = mongoClient.getDatabase(mongoDataBase);
+        MongoCollection collection = database.getCollection(mongoFilesDocument);
 
         return collection;
     }
