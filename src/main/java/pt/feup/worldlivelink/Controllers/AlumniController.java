@@ -37,6 +37,30 @@ public class AlumniController {
         return new ResponseEntity("Created alumni", HttpStatus.OK);
     }
 
+    //EndPoint Para mudar o Status do Alumni de 0 para 1(0 = não autorizado, 1 =  Autorizado)
+    @PutMapping("/validatealumni/{id}")
+    public ResponseEntity<Object> updateAlumni(final @PathVariable String id ) {
+        try {
+            alumniDaoService.validateAlumni(id);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity("failed to update Alumni Status", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity("Updated alumni status", HttpStatus.OK);
+    }
+    @PutMapping("/denyalumni/{id}")
+    public ResponseEntity<Object> denyAlumni(final @PathVariable String id ) {
+        try {
+            alumniDaoService.denyAlumni(id);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity("failed to update Alumni Status", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity("Denied alumni status", HttpStatus.OK);
+    }
+
     @GetMapping("/alumnibyname/{name}")
     public Collection<AlumniBean> getAlumniByName(@PathVariable String name) {
 
@@ -81,6 +105,10 @@ public class AlumniController {
     public Collection<AlumniBean> getAlumniByYear(@PathVariable String year) {
 
         return AlumniDaoService.getAlumniByYear(year);
+    }
+    @GetMapping("/alumnisnotactivated")
+    public Collection<AlumniBean>getAlumniNotActivated(){
+        return AlumniDaoService.getAlumniNoActivated();
     }
 
 }
