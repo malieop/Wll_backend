@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.InitializingBean;
@@ -64,7 +65,7 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
 
-            FindIterable<Document> findIterable =  collection.find();
+            FindIterable<Document> findIterable =  collection.find(eq("user.status", "1"));
 
             for (Document alumni : findIterable){
                 Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
@@ -84,7 +85,7 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
 
-            FindIterable<Document> findIterable =  collection.find(or(regex("user.lastname",name, "i"),regex("user.firstname",name, "i")));
+            FindIterable<Document> findIterable =  collection.find(and(eq("user.status", "1"),or(regex("user.lastname",name, "i"),regex("user.firstname",name, "i"))));
             ArrayList<AlumniBean> alumnis = new ArrayList<>();
 
             for (Document alumni : findIterable){
@@ -102,7 +103,7 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
 
-            FindIterable<Document> findIterable =  collection.find(or(regex("user.location,address",location,"i"),regex("user.location.address",location,"i")));
+            FindIterable<Document> findIterable =  collection.find(and(eq("user.status", "1"),or(regex("user.location,address",location,"i"),regex("user.location.address",location,"i"))));
             ArrayList<AlumniBean> alumnis = new ArrayList<>();
             for (Document alumni : findIterable){
                 Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
@@ -117,7 +118,7 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
 
-            FindIterable<Document> findIterable =  collection.find(or(regex("user.course.",course, "i"),regex("user.couse.name",course, "i")));
+            FindIterable<Document> findIterable =  collection.find(and(eq("user.status", "1"),or(regex("user.course.",course, "i"),regex("user.couse.name",course, "i"))));
             ArrayList<AlumniBean> alumnis = new ArrayList<>();
             for (Document alumni : findIterable){
                 Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
@@ -135,7 +136,7 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
 
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
-            FindIterable<Document> findIterable =  collection.find(or(eq("user.course.courseyear.startdate", year),eq("user.course.courseyear.enddate", year)));
+            FindIterable<Document> findIterable =  collection.find(and(eq("user.status", "1"),or(eq("user.course.courseyear.startdate", year),eq("user.course.courseyear.enddate", year))));
             for (Document alumni : findIterable){
                 Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
                 if(alumniBean.isPresent()){
@@ -278,8 +279,10 @@ public class AlumniDaoService implements InitializingBean {
                                                     .append("startdate",  alumnus.getCourse().getStartDate())
                                                     .append("enddate",    alumnus.getCourse().getEndDate())
                                             )
+                                            .append("status", "0")
                                             .append("username", alumnus.getUsername())
                                             .append("password", BCrypt.hashpw(alumnus.getPassword(), BCrypt.gensalt())
+
                                             )
                                     );
             try {
@@ -313,8 +316,52 @@ public class AlumniDaoService implements InitializingBean {
 
     }
 
+    public static Collection<AlumniBean> getAlumniNoActivated() {
+        ArrayList<AlumniBean> alumnis = new ArrayList<>();
+        try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
+            MongoCollection collection = MongoHelper.getCollection(mongoClient);
+
+            FindIterable<Document> findIterable =  collection.find(eq("user.status", "0"));
+            for (Document alumni : findIterable){
+                Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
+                if(alumniBean.isPresent()){
+                    alumnis.add(alumniBean.get());
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return alumnis;
+    }
+
+    public void validateAlumni (String id) {
+        try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
+            MongoCollection collection = MongoHelper.getCollection(mongoClient);
+            BasicDBObject query = new BasicDBObject("_id",new ObjectId(id));
+            collection.updateOne(query, Updates.set("user.status","1"));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void denyAlumni(String id) {
+        try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
+            MongoCollection collection = MongoHelper.getCollection(mongoClient);
+            BasicDBObject query = new BasicDBObject("_id",new ObjectId(id));
+            collection.updateOne(query, Updates.set("user.status","2"));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void afterPropertiesSet() {
     }
+
+
 
 }
