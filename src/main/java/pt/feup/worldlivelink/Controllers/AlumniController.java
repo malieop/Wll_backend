@@ -111,4 +111,10 @@ public class AlumniController {
         return AlumniDaoService.getAlumniNoActivated();
     }
 
+    @PostMapping("/alumnitoken/{id}")
+    public String getToken(@PathVariable String id){
+
+        return AlumniDaoService.createJWT(id,86400000);// 60sec*60min*24hours*1000milisec
+    }
+
 }
