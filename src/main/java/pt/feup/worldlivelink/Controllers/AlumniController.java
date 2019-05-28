@@ -3,11 +3,17 @@ package pt.feup.worldlivelink.Controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import pt.feup.worldlivelink.Alumni.AlumniBean;
 import pt.feup.worldlivelink.Alumni.AlumniDaoService;
 import pt.feup.worldlivelink.Alumni.AlumniRequestBean;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
@@ -110,6 +116,26 @@ public class AlumniController {
     public Collection<AlumniBean>getAlumniNotActivated(){
         return AlumniDaoService.getAlumniNoActivated();
     }
+
+    @GetMapping("/alumni/getloggeduserinfo")
+    public ResponseEntity<AlumniBean> getloggeduserinfo(){
+
+        RequestAttributes attributes = RequestContextHolder.currentRequestAttributes();
+        HttpServletRequest request = ((ServletRequestAttributes) attributes).getRequest();
+        SecurityContextImpl securityContext = ((SecurityContextImpl) request.getSession(true).getAttribute("SPRING_SECURITY_CONTEXT"));
+        String username = ((User) securityContext.getAuthentication().getPrincipal()).getUsername();
+
+        Optional<AlumniBean> optionalAlumniBean = AlumniDaoService.getAlumniByUsername(username);
+
+        if (optionalAlumniBean.isPresent()) {
+            return ResponseEntity.ok().body(optionalAlumniBean.get());
+        }
+        else {
+            return new ResponseEntity("failed to get session alumni", HttpStatus.NOT_FOUND);
+        }
+    }
+
+
 
     @PostMapping("/alumnitoken/{id}")
     public String getToken(@PathVariable String id){
