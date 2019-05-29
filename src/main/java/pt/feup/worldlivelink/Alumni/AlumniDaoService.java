@@ -344,12 +344,15 @@ public class AlumniDaoService implements InitializingBean {
             if (!alumni.getLocation().getLocation().isEmpty() && !alumni.getLocation().getLocation().equals("")) {
                 collection.updateOne(eq("user.username",alumni.username), Updates.set("user.location.address",alumni.getLocation().getLocation()));
 
-            } else if (!alumni.getCourse().getName().isEmpty() && !alumni.getCourse().getName().equals("")) {
+            }
+            if (!alumni.getCourse().getName().isEmpty() && !alumni.getCourse().getName().equals("")) {
                 collection.updateOne(eq("user.username",alumni.username), Updates.set("user.course.name",alumni.getCourse().getName()));
 
-            } else if (!alumni.getCompany().getJob().isEmpty() && !alumni.getCompany().getJob().equals("")) {
+            }
+            if (!alumni.getCompany().getJob().isEmpty() && !alumni.getCompany().getJob().equals("")) {
                 collection.updateOne(eq("user.username",alumni.username), Updates.set("user.company.job",alumni.getCompany().getJob()));
-            } else if (!alumni.getCompany().getName().isEmpty() && !alumni.getCompany().getName().equals("")){
+            }
+            if (!alumni.getCompany().getName().isEmpty() && !alumni.getCompany().getName().equals("")){
                 collection.updateOne(eq("user.username", alumni.username), Updates.set("user.company.name", alumni.getCompany().getName()));
             }
         } catch (Exception e){
