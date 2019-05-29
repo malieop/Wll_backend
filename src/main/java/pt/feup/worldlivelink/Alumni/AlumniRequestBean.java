@@ -22,28 +22,28 @@ public class AlumniRequestBean implements Serializable {
 
     private CompanyBean company;
 
-    @NotNull
-    @NotBlank
+    //@NotNull
+    //@NotBlank
     @Size(min=2)
-    public String username;
+    private String username;
 
-    @NotNull
-    @NotBlank
+    //@NotNull
+    //@NotBlank
     @Size(min=2)
-    public String password;
+    private String password;
 
 
     // TODO: ?? missing in mongo
-    @NotNull
-    @NotBlank
-    String birthdate;
+    //@NotNull
+    //@NotBlank
+    private String birthdate;
 
-    @NotNull
-    UserCourseBean course;
+    //@NotNull
+    private UserCourseBean course;
 
-    @NotNull
-    @NotBlank
-    String email;
+    //@NotNull
+    //@NotBlank
+    private String email;
 
     public AlumniRequestBean() {}
 
@@ -57,8 +57,16 @@ public class AlumniRequestBean implements Serializable {
         this.name = name;
         this.location = location;
         this.birthdate = birthdate;
-        this.course=userCourse;
-        this.company=company;
+        this.course = userCourse;
+        this.company = company;
+    }
+
+    public AlumniRequestBean(String username, LocationBean location,UserCourseBean userCourse, CompanyBean company){
+        this.username = username;
+        this.location = location;
+        this.course = userCourse;
+        this.company = company;
+
     }
 
     public CompanyBean getCompany() {
