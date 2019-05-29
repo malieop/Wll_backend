@@ -38,6 +38,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http
                 .csrf().disable()
+                .cors().disable()
                 .authorizeRequests()
                 .regexMatchers("/",
                         "/webjars/.*", // used by swagger
@@ -57,6 +58,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .httpBasic()
         ;
+
 
     }
 
