@@ -337,6 +337,26 @@ public class AlumniDaoService implements InitializingBean {
         return alumnis;
     }
 
+    public static void updateAlumni(AlumniUpdateInformationBean alumni) {
+        try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
+            MongoCollection collection = MongoHelper.getCollection(mongoClient);
+
+            if (!alumni.getLocation().getLocation().isEmpty() && !alumni.getLocation().getLocation().equals("")) {
+                collection.updateOne(eq("user.username",alumni.username), Updates.set("user.location.address",alumni.getLocation().getLocation()));
+
+            } else if (!alumni.getCourse().getName().isEmpty() && !alumni.getCourse().getName().equals("")) {
+                collection.updateOne(eq("user.username",alumni.username), Updates.set("user.course.name",alumni.getCourse().getName()));
+
+            } else if (!alumni.getCompany().getJob().isEmpty() && !alumni.getCompany().getJob().equals("")) {
+                collection.updateOne(eq("user.username",alumni.username), Updates.set("user.company.job",alumni.getCompany().getJob()));
+            } else if (!alumni.getCompany().getName().isEmpty() && !alumni.getCompany().getName().equals("")){
+                collection.updateOne(eq("user.username", alumni.username), Updates.set("user.company.name", alumni.getCompany().getName()));
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     public void validateAlumni (String id) {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);

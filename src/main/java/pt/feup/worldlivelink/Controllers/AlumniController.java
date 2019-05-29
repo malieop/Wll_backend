@@ -12,6 +12,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import pt.feup.worldlivelink.Alumni.AlumniBean;
 import pt.feup.worldlivelink.Alumni.AlumniDaoService;
 import pt.feup.worldlivelink.Alumni.AlumniRequestBean;
+import pt.feup.worldlivelink.Alumni.AlumniUpdateInformationBean;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -70,7 +71,7 @@ public class AlumniController {
     @GetMapping("/alumnibyname/{name}")
     public Collection<AlumniBean> getAlumniByName(@PathVariable String name) {
 
-        return AlumniDaoService.    getAlumniByName(name);
+        return AlumniDaoService.getAlumniByName(name);
     }
 
     @GetMapping("/alumnibyid/{id}")
@@ -136,11 +137,21 @@ public class AlumniController {
     }
 
 
-
     @PostMapping("/alumnitoken/{id}")
     public String getToken(@PathVariable String id){
-
         return AlumniDaoService.createJWT(id,86400000);// 60sec*60min*24hours*1000milisec
+    }
+
+    @PutMapping("/updatealumni")
+    public ResponseEntity<Object> updateAlumniInfo(final @Valid @RequestBody AlumniUpdateInformationBean alumni){
+        try {
+            AlumniDaoService.updateAlumni(alumni);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity("failed to update Alumni information", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity("Updated alumni information", HttpStatus.OK);
     }
 
 }
