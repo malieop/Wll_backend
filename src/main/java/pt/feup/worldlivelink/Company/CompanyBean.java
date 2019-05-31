@@ -7,11 +7,8 @@ public class CompanyBean implements Serializable {
 
     @NotNull
     private String name;
-
     private String email;
-
     private String job;
-
     private String startDate;
 
 
