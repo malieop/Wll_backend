@@ -19,7 +19,7 @@ import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
-
+@CrossOrigin(maxAge = 3600)
 @RestController
 public class AlumniController {
 
