@@ -12,7 +12,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import pt.feup.worldlivelink.Services.MongoUserDetailsService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Configuration
@@ -22,6 +30,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     MongoUserDetailsService userDetailsService;
+
+    @Autowired
+    CorsConfigurationSourceImpl corsConfig;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,8 +48,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http
+
                 .csrf().disable()
-                //.cors().disable()
+//                .cors().disable()
+                .cors().configurationSource(corsConfig)
+                .and()
                 .authorizeRequests()
                 .regexMatchers("/",
                         "/webjars/.*", // used by swagger
@@ -59,8 +73,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .httpBasic()
         ;
 
+//        http.cors();
 
     }
+
+
 
     @Override
     public void configure(WebSecurity web) {
@@ -74,6 +91,58 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
 
+    @Configuration
+    public class WebConfig extends WebMvcConfigurerAdapter {
+
+        @Override
+        public void addCorsMappings(CorsRegistry registry) {
+            registry.addMapping("/**")
+                    .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH");
+        }
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        final CorsConfiguration configuration = new CorsConfiguration();
+        List<String> allowedOrigins = new ArrayList<>();
+        allowedOrigins.add("*");
+        configuration.setAllowedOrigins(allowedOrigins);
+
+        List<String> allowedMethods = new ArrayList<>();
+        allowedMethods.add("HEAD");
+        allowedMethods.add("GET");
+        allowedMethods.add("POST");
+        allowedMethods.add("PUT");
+        allowedMethods.add("DELETE");
+        allowedMethods.add("PATCH");
+
+        configuration.setAllowedMethods(allowedMethods);
+
+        // setAllowCredentials(true) is important, otherwise:
+        // The value of the 'Access-Control-Allow-Origin' header in the response must not be the wildcard '*' when the request's credentials mode is 'include'.
+        configuration.setAllowCredentials(true);
+
+        List<String> allowedHeaders = new ArrayList<>();
+        allowedHeaders.add("Authorization");
+        allowedHeaders.add("Cache-Control");
+        allowedHeaders.add("Content-Type");
+        // setAllowedHeaders is important! Without it, OPTIONS preflight request
+        // will fail with 403 Invalid CORS request
+        configuration.setAllowedHeaders(allowedHeaders);
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+//    @Bean
+//    CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
+//        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
 
 }
 
