@@ -19,7 +19,7 @@ import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
-@CrossOrigin(maxAge = 3600)
+@CrossOrigin
 @RestController
 public class AlumniController {
 
@@ -32,6 +32,7 @@ public class AlumniController {
     }
 
     // only application/json, application/*+json, application/json, application/*+json formats supported
+    @CrossOrigin
     @PostMapping("/alumni")
     public ResponseEntity<Object> createAlumni(final @Valid @RequestBody AlumniRequestBean alumnus) {
         try {
