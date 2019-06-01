@@ -262,40 +262,49 @@ public class AlumniDaoService implements InitializingBean {
         return Optional.empty();
     }
 
-    public static void saveAlumni(final AlumniRequestBean alumnus) {
+    public static boolean saveAlumni(final AlumniRequestBean alumnus) {
+        boolean usernameRegistered = false;
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
-
-            Document jsonAlumni = new Document("user" ,
-                                    new Document("name", alumnus.getName())
-                                            .append("email", alumnus.getEmail())
-                                            .append("location",
-                                                new Document("address", alumnus.getLocation().getLocation())
-                                                    .append("city", alumnus.getLocation().getCity())
-                                                    .append("latitude", alumnus.getLocation().getLatitude())
-                                                    .append("longitude", alumnus.getLocation().getLongitude()))
-                                            .append("company",
-                                                new Document("name", alumnus.getCompany().getName())
-                                                    .append("email", alumnus.getCompany().getEmail())
-                                                    .append("job", alumnus.getCompany().getJob())
-                                                    .append("startdate", alumnus.getCompany().getStartDate()))
-                                            .append("course",
-                                                new Document("name", alumnus.getCourse().getName())
-                                                    .append("university", alumnus.getCourse().getUniversity())
-                                                    .append("startdate",  alumnus.getCourse().getStartDate())
-                                                    .append("enddate",    alumnus.getCourse().getEndDate())
-                                            )
-                                            .append("status", "0")
-                                            .append("username", alumnus.getUsername())
-                                            .append("password", BCrypt.hashpw(alumnus.getPassword(), BCrypt.gensalt())
-
-                                            )
-                                    );
-            try {
-                collection.insertOne(jsonAlumni);
-            } catch (Exception e) {
-                System.out.println(e);
+            FindIterable<Document> result = collection.find(eq("user.username",alumnus.getUsername()));
+            for (Document alumni: result){
+                usernameRegistered = true;
             }
+            if(usernameRegistered == false) {
+                Document jsonAlumni = new Document("user",
+                        new Document("name", alumnus.getName())
+                                .append("email", alumnus.getEmail())
+                                .append("location",
+                                        new Document("address", alumnus.getLocation().getLocation())
+                                                .append("city", alumnus.getLocation().getCity())
+                                                .append("latitude", alumnus.getLocation().getLatitude())
+                                                .append("longitude", alumnus.getLocation().getLongitude()))
+                                .append("company",
+                                        new Document("name", alumnus.getCompany().getName())
+                                                .append("email", alumnus.getCompany().getEmail())
+                                                .append("job", alumnus.getCompany().getJob())
+                                                .append("startdate", alumnus.getCompany().getStartDate()))
+                                .append("course",
+                                        new Document("name", alumnus.getCourse().getName())
+                                                .append("university", alumnus.getCourse().getUniversity())
+                                                .append("startdate", alumnus.getCourse().getStartDate())
+                                                .append("enddate", alumnus.getCourse().getEndDate())
+                                )
+                                .append("status", "0")
+                                .append("username", alumnus.getUsername())
+                                .append("password", BCrypt.hashpw(alumnus.getPassword(), BCrypt.gensalt())
+
+                                )
+                );
+                try {
+                    collection.insertOne(jsonAlumni);
+                    return true;
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+            return false;
+
         }
     }
 
@@ -348,6 +357,14 @@ public class AlumniDaoService implements InitializingBean {
 
             if (!alumni.getLocation().getLocation().isEmpty() && !alumni.getLocation().getLocation().equals("")) {
                 collection.updateOne(eq("user.username",alumni.username), Updates.set("user.location.address",alumni.getLocation().getLocation()));
+
+            }
+            if (!alumni.getLocation().getLatitude().isEmpty() && !alumni.getLocation().getLatitude().equals("")) {
+                collection.updateOne(eq("user.username",alumni.username), Updates.set("user.location.latitude",alumni.getLocation().getLatitude()));
+
+            }
+            if (!alumni.getLocation().getLongitude().isEmpty() && !alumni.getLocation().getLongitude().equals("")) {
+                collection.updateOne(eq("user.username",alumni.username), Updates.set("user.location.longitude",alumni.getLocation().getLongitude()));
 
             }
             if (!alumni.getCourse().getName().isEmpty() && !alumni.getCourse().getName().equals("")) {
@@ -426,6 +443,29 @@ public class AlumniDaoService implements InitializingBean {
         System.out.println("ID: " + claims.get("user_id"));
         System.out.println("Expiration: " + claims.getExpiration());
     }
+
+    public Collection<AlumniBean> getMapAlumni() {
+        ArrayList<AlumniBean> alumnis = new ArrayList<>();
+
+        try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
+            MongoCollection collection = MongoHelper.getCollection(mongoClient);
+
+            FindIterable<Document> findIterable =  collection.find();//eq("user.status", "1"));
+
+            for (Document alumni : findIterable){
+                Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
+                if(alumniBean.isPresent() && !alumniBean.get().getLocation().getLongitude().isEmpty()){
+                    alumnis.add(alumniBean.get());
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return alumnis;
+    }
+
     @Override
     public void afterPropertiesSet() {
     }
