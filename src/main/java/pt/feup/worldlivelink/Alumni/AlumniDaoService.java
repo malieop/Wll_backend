@@ -266,7 +266,7 @@ public class AlumniDaoService implements InitializingBean {
         boolean usernameRegistered = false;
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
-            FindIterable<Document> result = collection.find(eq("user.username",alumnus.getUsername()));
+            FindIterable<Document> result = collection.find(or(eq("user.username",alumnus.getUsername()),eq("user.email",alumnus.getEmail())));
             for (Document alumni: result){
                 usernameRegistered = true;
             }
