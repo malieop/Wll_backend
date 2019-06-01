@@ -14,10 +14,17 @@ import pt.feup.worldlivelink.Alumni.AlumniDaoService;
 import pt.feup.worldlivelink.Alumni.AlumniRequestBean;
 import pt.feup.worldlivelink.Alumni.AlumniUpdateInformationBean;
 
+import javax.annotation.processing.SupportedOptions;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
+
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @CrossOrigin
 @RestController
@@ -30,21 +37,45 @@ public class AlumniController {
     public Collection<AlumniBean> getListAlumni() {
         return alumniDaoService.getAlumni();
     }
-
-    // only application/json, application/*+json, application/json, application/*+json formats supported
-    @CrossOrigin
-    @PostMapping("/alumni")
-    public ResponseEntity<Object> createAlumni(final @Valid @RequestBody AlumniRequestBean alumnus) {
-        try {
-            alumniDaoService.saveAlumni(alumnus);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity("failed to create alumni", HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity("Created alumni", HttpStatus.OK);
+    @GetMapping("/alumnimap")
+    public Collection<AlumniBean> getMapListAlumni() {
+        return alumniDaoService.getMapAlumni();
     }
 
+    // only application/json, application/*+json, application/json, application/*+json formats supported
+    //@CrossOrigin(allowedHeaders = "", allowCredentials = "true", methods = {RequestMethod.POST}, exposedHeaders = )
+    @PostMapping("/alumni")
+    public ResponseEntity<Object> createAlumni(final @Valid @RequestBody AlumniRequestBean alumnus) {
+        boolean regist;
+        if(!alumnus.getUsername().isEmpty() && !alumnus.getPassword().isEmpty() && !alumnus.getEmail().isEmpty() && !alumnus.getName().isEmpty()) {
+            try {
+                regist = alumniDaoService.saveAlumni(alumnus);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ResponseEntity("failed to create alumni", HttpStatus.BAD_REQUEST);
+            }
+            if (regist) {
+                return new ResponseEntity("Created alumni", HttpStatus.OK);
+            } else {
+                return new ResponseEntity("Alumni username already exists", HttpStatus.BAD_REQUEST);
+            }
+        }else {
+            return new ResponseEntity("Fields are not filled", HttpStatus.BAD_REQUEST);
+        }
+    }
+    @RequestMapping(value = "/alumni", method = RequestMethod.OPTIONS)
+    protected void  optionsAlumni(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.setHeader("Access-Control-Max-Age", "3600");
+        res.setHeader("Access-Control-Allow-Headers", "X-PINGOTHER,Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization");
+        res.addHeader("Access-Control-Expose-Headers", "xsrf-token");
+        if ("OPTIONS".equals(req.getMethod())) {
+            res.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            chain.doFilter(req, res);
+        }
+    }
     //EndPoint Para mudar o Status do Alumni de 0 para 1(0 = não autorizado, 1 =  Autorizado)
     @PutMapping("/validatealumni/{id}")
     public ResponseEntity<Object> updateAlumni(final @PathVariable String id ) {
@@ -137,6 +168,11 @@ public class AlumniController {
         }
     }
 
+   /* @GetMapping("/alumnifiltered/{localization}/{year}/{course}")
+    public Collection<AlumniBean> getFilteredAlumni(@PathVariable(value = "localization") String localization, @PathVariable(value= "year") String year, @PathVariable(value= "course") String course){
+      //TODO Acabar os filtros todos juntos
+    }
+*/
 
     @PostMapping("/alumnitoken/{id}")
     public String getToken(@PathVariable String id){
