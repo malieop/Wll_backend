@@ -1,6 +1,8 @@
 package pt.feup.worldlivelink.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -24,7 +26,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
 
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @CrossOrigin
 @RestController
@@ -190,5 +191,21 @@ public class AlumniController {
         }
         return new ResponseEntity("Updated alumni information", HttpStatus.OK);
     }
+
+    @PostMapping("/setAdmin")
+    public ResponseEntity<Object> setAdmin(@Valid @RequestBody String id){
+        try {
+            JSONObject idJson = new JSONObject(id);
+            AlumniDaoService.setAdminAlumni(idJson.getString("id"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new ResponseEntity("failed to update Alumni information", HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity("failed to update Alumni information", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity("Updated alumni information", HttpStatus.OK);
+    }
+
 
 }

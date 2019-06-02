@@ -209,7 +209,7 @@ public class AlumniDaoService implements InitializingBean {
             JSONObject user =  alumniJson.getJSONObject("user");
             AlumniBean alumniBean = new AlumniBean(alumniJson.getJSONObject("_id").getString("$oid"),
                                                    user.getString("name"),
-                                                   setAlumniLocation(alumniJson));
+                                                   setAlumniLocation(alumniJson), user.getString("isAdmin"));
 
             JSONObject companyJson = user.getJSONObject("company");
             CompanyBean company = new CompanyBean()
@@ -291,6 +291,7 @@ public class AlumniDaoService implements InitializingBean {
                                                 .append("enddate", alumnus.getCourse().getEndDate())
                                 )
                                 .append("status", "0")
+                                .append("isAdmin", "false")
                                 .append("username", alumnus.getUsername())
                                 .append("password", BCrypt.hashpw(alumnus.getPassword(), BCrypt.gensalt())
 
@@ -355,6 +356,9 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
 
+            if (!alumni.getName().isEmpty() && !alumni.getName().equals("")) {
+                collection.updateOne(eq("user.username",alumni.username), Updates.set("user.name",alumni.getName()));
+            }
             if (!alumni.getLocation().getLocation().isEmpty() && !alumni.getLocation().getLocation().equals("")) {
                 collection.updateOne(eq("user.username",alumni.username), Updates.set("user.location.address",alumni.getLocation().getLocation()));
 
@@ -380,6 +384,18 @@ public class AlumniDaoService implements InitializingBean {
         } catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public static void setAdminAlumni(String id) {
+        try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
+            MongoCollection collection = MongoHelper.getCollection(mongoClient);
+            BasicDBObject query = new BasicDBObject("_id",new ObjectId(id));
+            collection.updateOne(query, Updates.set("user.isAdmin","true"));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void validateAlumni (String id) {

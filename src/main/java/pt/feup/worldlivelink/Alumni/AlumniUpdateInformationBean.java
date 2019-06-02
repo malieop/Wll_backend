@@ -13,17 +13,18 @@ public class AlumniUpdateInformationBean implements Serializable {
     private LocationBean location;
     private UserCourseBean course;
     private CompanyBean company;
-
+    private String name;
     @NotNull
     @NotBlank
     @Size(min=2)
     public String username;
 
-    public AlumniUpdateInformationBean(LocationBean location, UserCourseBean course, CompanyBean company, @NotNull @NotBlank @Size(min = 2) String username) {
+    public AlumniUpdateInformationBean(String name, LocationBean location, UserCourseBean course, CompanyBean company, @NotNull @NotBlank @Size(min = 2) String username) {
         this.location = location;
         this.course = course;
         this.company = company;
         this.username = username;
+        this.name = name;
     }
 
     public LocationBean getLocation() {
@@ -57,4 +58,8 @@ public class AlumniUpdateInformationBean implements Serializable {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public String getName() { return name;    }
+
+    public void setName(String name) {this.name = name; }
 }
