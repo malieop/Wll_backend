@@ -208,8 +208,10 @@ public class AlumniDaoService implements InitializingBean {
 
             JSONObject user =  alumniJson.getJSONObject("user");
             AlumniBean alumniBean = new AlumniBean(alumniJson.getJSONObject("_id").getString("$oid"),
-                                                   user.getString("name"),
-                                                   setAlumniLocation(alumniJson), user.getString("isadmin"));
+                    user.getString("name"),
+                    setAlumniLocation(alumniJson),
+                    user.getString("isadmin"),
+                    user.getString("status"));
 
             JSONObject companyJson = user.getJSONObject("company");
             CompanyBean company = new CompanyBean()

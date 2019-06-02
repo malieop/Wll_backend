@@ -15,15 +15,19 @@ public class AlumniBean extends AlumniRequestBean {
     private String id;
 
     @NotNull
-    private String isAdmin;
+    private String isadmin;
+
+    @NotNull
+    private String status;
 
 
     public AlumniBean() {}
 
-    public AlumniBean(String id, String name, LocationBean location, String isAdmin) {
+    public AlumniBean(String id, String name, LocationBean location, String isadmin, String status) {
         super(name, location);
         this.id = id;
-        this.isAdmin = isAdmin;
+        this.isadmin = isadmin;
+        this.status = status;
     }
 
     public String getId() {
@@ -34,11 +38,21 @@ public class AlumniBean extends AlumniRequestBean {
         this.id = id;
     }
 
-    public String getIsAdmin() {
-        return isAdmin;
+
+    public String getStatus() {
+        return status;
     }
 
-    public void setIsAdmin(String isAdmin) {
-        this.isAdmin = isAdmin;
+    public String getIsadmin() {
+        return isadmin;
     }
+
+    public void setIsadmin(String isadmin) {
+        this.isadmin = isadmin;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
 }
