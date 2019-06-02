@@ -16,6 +16,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import pt.feup.worldlivelink.Services.MongoUserDetailsService;
 
@@ -92,12 +93,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
     @Configuration
-    public class WebConfig extends WebMvcConfigurerAdapter {
+    public class WebConfig implements WebMvcConfigurer {
 
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/**")
-                    .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH");
+                    .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH")
+                    .allowedHeaders("Access-Control-Allow-Origin");
         }
     }
 
@@ -125,6 +127,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         List<String> allowedHeaders = new ArrayList<>();
         allowedHeaders.add("Authorization");
         allowedHeaders.add("Cache-Control");
+        allowedHeaders.add("Access-Control-Allow-Origin");
         allowedHeaders.add("Content-Type");
         // setAllowedHeaders is important! Without it, OPTIONS preflight request
         // will fail with 403 Invalid CORS request
