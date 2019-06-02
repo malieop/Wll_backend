@@ -78,10 +78,11 @@ public class AlumniController {
         }
     }
     //EndPoint Para mudar o Status do Alumni de 0 para 1(0 = não autorizado, 1 =  Autorizado)
-    @PutMapping("/validatealumni/{id}")
-    public ResponseEntity<Object> updateAlumni(final @PathVariable String id ) {
+    @PutMapping("/validatealumni")
+    public ResponseEntity<Object> updateAlumni(final @RequestBody String id ) {
         try {
-            alumniDaoService.validateAlumni(id);
+            JSONObject idJson = new JSONObject(id);
+            alumniDaoService.validateAlumni(idJson.getString("id"));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -89,10 +90,11 @@ public class AlumniController {
         }
         return new ResponseEntity("Updated alumni status", HttpStatus.OK);
     }
-    @PutMapping("/denyalumni/{id}")
-    public ResponseEntity<Object> denyAlumni(final @PathVariable String id ) {
+    @PutMapping("/denyalumni")
+    public ResponseEntity<Object> denyAlumni(final@RequestBody String id ) {
         try {
-            alumniDaoService.denyAlumni(id);
+            JSONObject idJson = new JSONObject(id);
+            alumniDaoService.denyAlumni(idJson.getString("id"));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -119,10 +121,10 @@ public class AlumniController {
         return  new ResponseEntity("failed to find alumni", HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/alumnibyid/{id}")
-    public ResponseEntity<Object> deleteAlumniById(@PathVariable String id) {
-
-        if (alumniDaoService.deleteAlumni(id)) {
+    @DeleteMapping("/alumnibyid")
+    public ResponseEntity<Object> deleteAlumniById(@RequestBody String id) throws JSONException {
+        JSONObject idJson = new JSONObject(id);
+        if (alumniDaoService.deleteAlumni(idJson.getString("id"))) {
             return ResponseEntity.ok().build();
         }
         else {
