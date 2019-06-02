@@ -209,7 +209,7 @@ public class AlumniDaoService implements InitializingBean {
             JSONObject user =  alumniJson.getJSONObject("user");
             AlumniBean alumniBean = new AlumniBean(alumniJson.getJSONObject("_id").getString("$oid"),
                                                    user.getString("name"),
-                                                   setAlumniLocation(alumniJson), user.getString("isAdmin"));
+                                                   setAlumniLocation(alumniJson), user.getString("isadmin"));
 
             JSONObject companyJson = user.getJSONObject("company");
             CompanyBean company = new CompanyBean()
@@ -291,7 +291,7 @@ public class AlumniDaoService implements InitializingBean {
                                                 .append("enddate", alumnus.getCourse().getEndDate())
                                 )
                                 .append("status", "0")
-                                .append("isAdmin", "false")
+                                .append("isadmin", "false")
                                 .append("username", alumnus.getUsername())
                                 .append("password", BCrypt.hashpw(alumnus.getPassword(), BCrypt.gensalt())
 
@@ -390,7 +390,7 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
             BasicDBObject query = new BasicDBObject("_id",new ObjectId(id));
-            collection.updateOne(query, Updates.set("user.isAdmin","true"));
+            collection.updateOne(query, Updates.set("user.isadmin","true"));
         }
         catch (Exception e) {
             e.printStackTrace();
