@@ -14,12 +14,20 @@ public class AlumniBean extends AlumniRequestBean {
     @UniqueElements
     private String id;
 
+    @NotNull
+    private String isadmin;
+
+    @NotNull
+    private String status;
+
 
     public AlumniBean() {}
 
-    public AlumniBean(String id, String name, LocationBean location) {
+    public AlumniBean(String id, String name, LocationBean location, String isadmin, String status) {
         super(name, location);
         this.id = id;
+        this.isadmin = isadmin;
+        this.status = status;
     }
 
     public String getId() {
@@ -30,5 +38,21 @@ public class AlumniBean extends AlumniRequestBean {
         this.id = id;
     }
 
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getIsadmin() {
+        return isadmin;
+    }
+
+    public void setIsadmin(String isadmin) {
+        this.isadmin = isadmin;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
 }

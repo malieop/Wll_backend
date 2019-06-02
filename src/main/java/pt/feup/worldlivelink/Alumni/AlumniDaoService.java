@@ -66,7 +66,7 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
 
-            FindIterable<Document> findIterable =  collection.find();//eq("user.status", "1"));
+            FindIterable<Document> findIterable =  collection.find(eq("user.isadmin", "false"));//eq("user.status", "1"));
 
             for (Document alumni : findIterable){
                 Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
@@ -86,7 +86,7 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
 
-            FindIterable<Document> findIterable =  collection.find(/*and(eq("user.status", "1"),*/or(regex("user.lastname",name, "i"),regex("user.firstname",name, "i")));//);
+            FindIterable<Document> findIterable =  collection.find(/*and(eq("user.status", "1"),*/and(or(regex("user.lastname",name, "i"),regex("user.firstname",name, "i")),eq("user.isadmin", "false")));//);
             ArrayList<AlumniBean> alumnis = new ArrayList<>();
 
             for (Document alumni : findIterable){
@@ -105,7 +105,7 @@ public class AlumniDaoService implements InitializingBean {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
 
             //FindIterable<Document> findIterable =  collection.find(and(eq("user.status", "1"),or(regex("user.location,address",location,"i"),regex("user.location.address",location,"i"))));
-            FindIterable<Document> findIterable =  collection.find(or(regex("user.location,address",location,"i"),regex("user.location.address",location,"i")));
+            FindIterable<Document> findIterable =  collection.find(and(or(regex("user.location,address",location,"i"),regex("user.location.address",location,"i")), eq("user.isadmin","false")));
 
             ArrayList<AlumniBean> alumnis = new ArrayList<>();
             for (Document alumni : findIterable){
@@ -120,7 +120,7 @@ public class AlumniDaoService implements InitializingBean {
     public static Collection<AlumniBean> getAlumniByCourse(final String course){
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
-            FindIterable<Document> findIterable =  collection.find(or(regex("user.course.",course, "i"),regex("user.couse.name",course, "i")));
+            FindIterable<Document> findIterable =  collection.find(and(or(regex("user.course.",course, "i"),regex("user.couse.name",course, "i")),eq("user.isadmin","false")));
 
             //FindIterable<Document> findIterable =  collection.find(and(eq("user.status", "1"),or(regex("user.course.",course, "i"),regex("user.couse.name",course, "i"))));
             ArrayList<AlumniBean> alumnis = new ArrayList<>();
@@ -142,7 +142,7 @@ public class AlumniDaoService implements InitializingBean {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
             //FindIterable<Document> findIterable =  collection.find(and(eq("user.status", "1"),or(eq("user.course.courseyear.startdate", year),eq("user.course.courseyear.enddate", year))));
 
-            FindIterable<Document> findIterable =  collection.find(or(eq("user.course.courseyear.startdate", year),eq("user.course.courseyear.enddate", year)));
+            FindIterable<Document> findIterable =  collection.find(and(or(eq("user.course.courseyear.startdate", year),eq("user.course.courseyear.enddate", year)),eq("user.isadmin","false")));
             for (Document alumni : findIterable){
                 Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
                 if(alumniBean.isPresent()){
@@ -208,8 +208,10 @@ public class AlumniDaoService implements InitializingBean {
 
             JSONObject user =  alumniJson.getJSONObject("user");
             AlumniBean alumniBean = new AlumniBean(alumniJson.getJSONObject("_id").getString("$oid"),
-                                                   user.getString("name"),
-                                                   setAlumniLocation(alumniJson));
+                    user.getString("name"),
+                    setAlumniLocation(alumniJson),
+                    user.getString("isadmin"),
+                    user.getString("status"));
 
             JSONObject companyJson = user.getJSONObject("company");
             CompanyBean company = new CompanyBean()
@@ -262,40 +264,50 @@ public class AlumniDaoService implements InitializingBean {
         return Optional.empty();
     }
 
-    public static void saveAlumni(final AlumniRequestBean alumnus) {
+    public static boolean saveAlumni(final AlumniRequestBean alumnus) {
+        boolean usernameRegistered = false;
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
-
-            Document jsonAlumni = new Document("user" ,
-                                    new Document("name", alumnus.getName())
-                                            .append("email", alumnus.getEmail())
-                                            .append("location",
-                                                new Document("address", alumnus.getLocation().getLocation())
-                                                    .append("city", alumnus.getLocation().getCity())
-                                                    .append("latitude", alumnus.getLocation().getLatitude())
-                                                    .append("longitude", alumnus.getLocation().getLongitude()))
-                                            .append("company",
-                                                new Document("name", alumnus.getCompany().getName())
-                                                    .append("email", alumnus.getCompany().getEmail())
-                                                    .append("job", alumnus.getCompany().getJob())
-                                                    .append("startdate", alumnus.getCompany().getStartDate()))
-                                            .append("course",
-                                                new Document("name", alumnus.getCourse().getName())
-                                                    .append("university", alumnus.getCourse().getUniversity())
-                                                    .append("startdate",  alumnus.getCourse().getStartDate())
-                                                    .append("enddate",    alumnus.getCourse().getEndDate())
-                                            )
-                                            .append("status", "0")
-                                            .append("username", alumnus.getUsername())
-                                            .append("password", BCrypt.hashpw(alumnus.getPassword(), BCrypt.gensalt())
-
-                                            )
-                                    );
-            try {
-                collection.insertOne(jsonAlumni);
-            } catch (Exception e) {
-                System.out.println(e);
+            FindIterable<Document> result = collection.find(or(eq("user.username",alumnus.getUsername()),eq("user.email",alumnus.getEmail())));
+            for (Document alumni: result){
+                usernameRegistered = true;
             }
+            if(usernameRegistered == false) {
+                Document jsonAlumni = new Document("user",
+                        new Document("name", alumnus.getName())
+                                .append("email", alumnus.getEmail())
+                                .append("location",
+                                        new Document("address", alumnus.getLocation().getLocation())
+                                                .append("city", alumnus.getLocation().getCity())
+                                                .append("latitude", alumnus.getLocation().getLatitude())
+                                                .append("longitude", alumnus.getLocation().getLongitude()))
+                                .append("company",
+                                        new Document("name", alumnus.getCompany().getName())
+                                                .append("email", alumnus.getCompany().getEmail())
+                                                .append("job", alumnus.getCompany().getJob())
+                                                .append("startdate", alumnus.getCompany().getStartDate()))
+                                .append("course",
+                                        new Document("name", alumnus.getCourse().getName())
+                                                .append("university", alumnus.getCourse().getUniversity())
+                                                .append("startdate", alumnus.getCourse().getStartDate())
+                                                .append("enddate", alumnus.getCourse().getEndDate())
+                                )
+                                .append("status", "0")
+                                .append("isadmin", "false")
+                                .append("username", alumnus.getUsername())
+                                .append("password", BCrypt.hashpw(alumnus.getPassword(), BCrypt.gensalt())
+
+                                )
+                );
+                try {
+                    collection.insertOne(jsonAlumni);
+                    return true;
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+            return false;
+
         }
     }
 
@@ -327,7 +339,7 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
 
-            FindIterable<Document> findIterable =  collection.find(eq("user.status", "0"));
+            FindIterable<Document> findIterable =  collection.find(and(eq("user.status", "0"),eq("user.isadmin","false")));
             for (Document alumni : findIterable){
                 Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
                 if(alumniBean.isPresent()){
@@ -346,8 +358,19 @@ public class AlumniDaoService implements InitializingBean {
         try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
             MongoCollection collection = MongoHelper.getCollection(mongoClient);
 
+            if (!alumni.getName().isEmpty() && !alumni.getName().equals("")) {
+                collection.updateOne(eq("user.username",alumni.username), Updates.set("user.name",alumni.getName()));
+            }
             if (!alumni.getLocation().getLocation().isEmpty() && !alumni.getLocation().getLocation().equals("")) {
                 collection.updateOne(eq("user.username",alumni.username), Updates.set("user.location.address",alumni.getLocation().getLocation()));
+
+            }
+            if (!alumni.getLocation().getLatitude().isEmpty() && !alumni.getLocation().getLatitude().equals("")) {
+                collection.updateOne(eq("user.username",alumni.username), Updates.set("user.location.latitude",alumni.getLocation().getLatitude()));
+
+            }
+            if (!alumni.getLocation().getLongitude().isEmpty() && !alumni.getLocation().getLongitude().equals("")) {
+                collection.updateOne(eq("user.username",alumni.username), Updates.set("user.location.longitude",alumni.getLocation().getLongitude()));
 
             }
             if (!alumni.getCourse().getName().isEmpty() && !alumni.getCourse().getName().equals("")) {
@@ -363,6 +386,18 @@ public class AlumniDaoService implements InitializingBean {
         } catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public static void setAdminAlumni(String id) {
+        try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
+            MongoCollection collection = MongoHelper.getCollection(mongoClient);
+            BasicDBObject query = new BasicDBObject("_id",new ObjectId(id));
+            collection.updateOne(query, Updates.set("user.isadmin","true"));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void validateAlumni (String id) {
@@ -426,6 +461,29 @@ public class AlumniDaoService implements InitializingBean {
         System.out.println("ID: " + claims.get("user_id"));
         System.out.println("Expiration: " + claims.getExpiration());
     }
+
+    public Collection<AlumniBean> getMapAlumni() {
+        ArrayList<AlumniBean> alumnis = new ArrayList<>();
+
+        try (  MongoClient mongoClient = MongoHelper.getMongoClient()) {
+            MongoCollection collection = MongoHelper.getCollection(mongoClient);
+
+            FindIterable<Document> findIterable =  collection.find(eq("user.isadmin","false"));//and(eq("user.status", "1")),eq("user.isadmin","false"));
+
+            for (Document alumni : findIterable){
+                Optional<AlumniBean> alumniBean = createAlumniBean(alumni);
+                if(alumniBean.isPresent() && !alumniBean.get().getLocation().getLongitude().isEmpty()){
+                    alumnis.add(alumniBean.get());
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return alumnis;
+    }
+
     @Override
     public void afterPropertiesSet() {
     }
