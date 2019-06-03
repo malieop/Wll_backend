@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -43,7 +42,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(AuthenticationManagerBuilder builder) throws Exception {
         builder.userDetailsService(userDetailsService);
-        builder.inMemoryAuthentication().withUser("iadmin").password("iadmin").roles("ADMIN");
     }
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -63,8 +61,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                        "/webjars/.*", // used by swagger
                        "/swagger-.*", // used by swagger
                        "/css/.*",
-                       //"/alumni",
                        "/login").permitAll()
+               .and()
+               .authorizeRequests()
+               .antMatchers("/alumni").hasRole("USER")
                .and()
                .authorizeRequests()
                .anyRequest()
@@ -80,7 +80,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-        //TODO REMOVE ALUMNISNOTACTIVATED, VALIDATEALUMNI AND DENYALUMNI FROM HERE
         web.ignoring().antMatchers("/v2/api-docs",
                 "/configuration/ui",
                 "/swagger-resources",
@@ -88,7 +87,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/swagger-ui.html",
                 "/webjars/**");
     }
-
 
     @Configuration
     public class WebConfig implements WebMvcConfigurer {
