@@ -46,7 +46,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-       http
+       /*http
                .csrf().disable()
                .cors().configurationSource(corsConfig)
                .and()
@@ -72,9 +72,37 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                .and()
                .formLogin().loginPage("/login")
                .and()
-               .httpBasic();
+               .httpBasic();*/
+        http
+
+                .csrf().disable()
+//                .cors().disable()
+                .cors().configurationSource(corsConfig)
+                .and()
+                .authorizeRequests()
+                .regexMatchers("/",
+                        "/webjars/.*", // used by swagger
+                        "/swagger-.*", // used by swagger
+                        "/css/.*",
+                        "/alumni",
+                        "/login")
+                .permitAll()
+                .and()
+
+                .authorizeRequests()
+                .anyRequest()
+                .authenticated()
+                .and()
+
+                .formLogin().loginPage("/login")
+                .and()
+                .httpBasic()
+        ;
+
+//        http.cors();
 
     }
+
 
 
 
