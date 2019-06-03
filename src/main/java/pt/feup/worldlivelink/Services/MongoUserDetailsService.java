@@ -33,10 +33,18 @@ public class MongoUserDetailsService implements UserDetailsService{
         }
 
         AlumniBean alumni = oalumni.get();
+        List<SimpleGrantedAuthority> authorities_userAuth = Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
+        List<SimpleGrantedAuthority> authorities_userNotAuth = Arrays.asList(new SimpleGrantedAuthority("ROLE_NOTUSER"));
+        List<SimpleGrantedAuthority> authorities_admin = Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
-        List<SimpleGrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("user"));
-        return new User(alumni.getUsername(), alumni.getPassword(), authorities);
+        if (oalumni.get().getIsadmin().equals("true")) {
+            return new User(alumni.getUsername(), alumni.getPassword(), authorities_admin);
+        } else if (oalumni.get().getStatus().equals("0")) {
+            return new User(alumni.getUsername(), alumni.getPassword(), authorities_userNotAuth);
+        } else if (oalumni.get().getStatus().equals("1")) {
+            return new User(alumni.getUsername(), alumni.getPassword(), authorities_userAuth);
+        }
+        return null;
     }
-
 
 }

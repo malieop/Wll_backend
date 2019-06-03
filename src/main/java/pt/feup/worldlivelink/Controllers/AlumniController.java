@@ -45,7 +45,7 @@ public class AlumniController {
 
     // only application/json, application/*+json, application/json, application/*+json formats supported
     //@CrossOrigin(allowedHeaders = "", allowCredentials = "true", methods = {RequestMethod.POST}, exposedHeaders = )
-    @PostMapping("/alumni")
+    @PostMapping("/createalumni")
     public ResponseEntity<Object> createAlumni(final @Valid @RequestBody AlumniRequestBean alumnus) {
         boolean regist;
         if(!alumnus.getUsername().isEmpty() && !alumnus.getPassword().isEmpty() && !alumnus.getEmail().isEmpty() && !alumnus.getName().isEmpty()) {
