@@ -12,16 +12,16 @@ import pt.feup.worldlivelink.Storage.StorageService;
 
 @SpringBootApplication
 @EnableConfigurationProperties(StorageProperties.class)
-public class WorldLiveLinkApplication extends SpringBootServletInitializer {
+public class WorldLiveLinkApplication{ //extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(WorldLiveLinkApplication.class, args);
 	}
 
-	@Override
+	/*@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(WorldLiveLinkApplication.class);
-	}
+	}*/
 
 	@Bean
 	CommandLineRunner init(StorageService storageService) {
