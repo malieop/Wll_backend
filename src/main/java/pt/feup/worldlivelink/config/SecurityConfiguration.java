@@ -16,7 +16,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import pt.feup.worldlivelink.Services.MongoUserDetailsService;
 
@@ -44,36 +43,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public void configure(AuthenticationManagerBuilder builder) throws Exception {
         builder.userDetailsService(userDetailsService);
     }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-       /*http
-               .csrf().disable()
-               .cors().configurationSource(corsConfig)
-               .and()
-               .authorizeRequests()
-               .antMatchers("/alumnisnotactivated",
-                       "/denyalumni",
-                       "/validatealumni"
-                       ).hasRole("ADMIN")
-               .and()
-               .authorizeRequests()
-               .antMatchers("/",
-                       "/webjars/.*", // used by swagger
-                       "/swagger-.*", // used by swagger
-                       "/css/.*",
-                       "/login").permitAll()
-               .and()
-               .authorizeRequests()
-               .antMatchers("/alumni").hasRole("USER")
-               .and()
-               .authorizeRequests()
-               .anyRequest()
-               .authenticated()
-               .and()
-               .formLogin().loginPage("/login")
-               .and()
-               .httpBasic();*/
         http
 
                 .csrf().disable()
@@ -106,10 +79,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
 
-
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers("/v2/api-docs",
+        //TODO REMOVE ALUMNISNOTACTIVATED, VALIDATEALUMNI AND DENYALUMNI FROM HERE
+        web.ignoring().antMatchers("/v2/api-docs","/alumnisnotactivated","/validatealumni/{id}","/denyalumni/{id}",
                 "/configuration/ui",
                 "/swagger-resources",
                 "/configuration/security",
@@ -117,14 +90,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/webjars/**");
     }
 
+
     @Configuration
-    public class WebConfig extends WebMvcConfigurerAdapter{//implements WebMvcConfigurer {
+    public class WebConfig extends WebMvcConfigurerAdapter {
 
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/**")
                     .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH");
-                    //.allowedHeaders("Access-Control-Allow-Origin");
         }
     }
 
@@ -152,7 +125,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         List<String> allowedHeaders = new ArrayList<>();
         allowedHeaders.add("Authorization");
         allowedHeaders.add("Cache-Control");
-       // allowedHeaders.add("Access-Control-Allow-Origin");
         allowedHeaders.add("Content-Type");
         // setAllowedHeaders is important! Without it, OPTIONS preflight request
         // will fail with 403 Invalid CORS request
