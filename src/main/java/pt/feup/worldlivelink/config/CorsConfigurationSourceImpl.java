@@ -37,7 +37,7 @@ public class CorsConfigurationSourceImpl implements CorsConfigurationSource {
         List<String> allowedHeaders = new ArrayList<>();
         allowedHeaders.add("Authorization");
         allowedHeaders.add("Cache-Control");
-        allowedHeaders.add("Access-Control-Allow-Origin");
+        //allowedHeaders.add("Access-Control-Allow-Origin");
         allowedHeaders.add("Content-Type");
         // setAllowedHeaders is important! Without it, OPTIONS preflight request
         // will fail with 403 Invalid CORS request
