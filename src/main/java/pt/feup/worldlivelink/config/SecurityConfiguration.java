@@ -57,7 +57,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                        ).hasRole("ADMIN")
                .and()
                .authorizeRequests()
-               .antMatchers(//"/",
+               .antMatchers("/",
                        "/webjars/.*", // used by swagger
                        "/swagger-.*", // used by swagger
                        "/css/.*",
