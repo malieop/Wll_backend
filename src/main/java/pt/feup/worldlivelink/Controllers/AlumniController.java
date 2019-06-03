@@ -1,10 +1,13 @@
 package pt.feup.worldlivelink.Controllers;
 
+import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +18,6 @@ import pt.feup.worldlivelink.Alumni.AlumniBean;
 import pt.feup.worldlivelink.Alumni.AlumniDaoService;
 import pt.feup.worldlivelink.Alumni.AlumniRequestBean;
 import pt.feup.worldlivelink.Alumni.AlumniUpdateInformationBean;
-
-import javax.annotation.processing.SupportedOptions;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +39,7 @@ public class AlumniController {
     public Collection<AlumniBean> getListAlumni() {
         return alumniDaoService.getAlumni();
     }
+
     @GetMapping("/alumnimap")
     public Collection<AlumniBean> getMapListAlumni() {
         return alumniDaoService.getMapAlumni();
@@ -102,13 +104,11 @@ public class AlumniController {
         }
         return new ResponseEntity("Denied alumni status", HttpStatus.OK);
     }
-
     @GetMapping("/alumnibyname/{name}")
     public Collection<AlumniBean> getAlumniByName(@PathVariable String name) {
 
         return AlumniDaoService.getAlumniByName(name);
     }
-
     @GetMapping("/alumnibyid/{id}")
     public ResponseEntity<Object> getAlumniById(@PathVariable String id) {
 
@@ -120,7 +120,6 @@ public class AlumniController {
 
         return  new ResponseEntity("failed to find alumni", HttpStatus.NOT_FOUND);
     }
-
     @DeleteMapping("/alumnibyid")
     public ResponseEntity<Object> deleteAlumniById(@RequestBody String id) throws JSONException {
         JSONObject idJson = new JSONObject(id);
@@ -131,23 +130,23 @@ public class AlumniController {
             return new ResponseEntity("failed to delete alumni", HttpStatus.NOT_FOUND);
         }
     }
-
     @GetMapping("/alumnibylocation/{location}")
     public Collection<AlumniBean> getAlumniByLocation(@PathVariable String location) {
 
         return AlumniDaoService.getAlumniByLocation(location);
     }
-
     @GetMapping("/alumnibycourse/{course}")
     public Collection<AlumniBean> getAlumniByCourse(@PathVariable String course) {
 
         return AlumniDaoService.getAlumniByCourse(course);
     }
+
     @GetMapping("/alumnibyyear/{year}")
     public Collection<AlumniBean> getAlumniByYear(@PathVariable String year) {
 
         return AlumniDaoService.getAlumniByYear(year);
     }
+
     @GetMapping("/alumnisnotactivated")
     public Collection<AlumniBean>getAlumniNotActivated(){
         return AlumniDaoService.getAlumniNoActivated();

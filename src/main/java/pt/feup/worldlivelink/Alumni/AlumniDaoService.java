@@ -254,6 +254,9 @@ public class AlumniDaoService implements InitializingBean {
             alumniBean.setId(alumniJson.getJSONObject("_id").getString("$oid"));
             alumniBean.setPassword(user.getString("password"));
             alumniBean.setUsername(user.getString("username"));
+            //Added because of Autorization roles
+            alumniBean.setIsadmin(user.getString("isadmin"));
+            alumniBean.setStatus(user.getString("status"));
 
             return Optional.of(alumniBean);
         } catch (JSONException e) {

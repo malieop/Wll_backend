@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class MongoUserDetailsService implements UserDetailsService{
+public class MongoUserDetailsService implements UserDetailsService {
 
     @Autowired
     private MongoLoginAlumniRepository repository = new MongoLoginAlumniRepository();
@@ -28,15 +28,23 @@ public class MongoUserDetailsService implements UserDetailsService{
 
         Optional<AlumniBean> oalumni = repository.findAlumniByUsername(username);
 
-        if(!oalumni.isPresent()) {
+        if (!oalumni.isPresent()) {
             throw new UsernameNotFoundException("User not found");
         }
 
         AlumniBean alumni = oalumni.get();
 
-        List<SimpleGrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("user"));
-        return new User(alumni.getUsername(), alumni.getPassword(), authorities);
+        List<SimpleGrantedAuthority> authorities_userAuth = Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
+        List<SimpleGrantedAuthority> authorities_userNotAuth = Arrays.asList(new SimpleGrantedAuthority("ROLE_NOTUSER"));
+        List<SimpleGrantedAuthority> authorities_admin = Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN"));
+
+        if (oalumni.get().getIsadmin().equals("true")) {
+            return new User(alumni.getUsername(), alumni.getPassword(), authorities_admin);
+        } else if (oalumni.get().getStatus().equals("0")) {
+            return new User(alumni.getUsername(), alumni.getPassword(), authorities_userNotAuth);
+        } else if (oalumni.get().getStatus().equals("1")) {
+            return new User(alumni.getUsername(), alumni.getPassword(), authorities_userAuth);
+        }
+        return null;
     }
-
-
 }

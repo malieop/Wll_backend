@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,7 +18,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import pt.feup.worldlivelink.Services.MongoUserDetailsService;
 
 import java.util.ArrayList;
@@ -43,38 +43,36 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(AuthenticationManagerBuilder builder) throws Exception {
         builder.userDetailsService(userDetailsService);
+        builder.inMemoryAuthentication().withUser("iadmin").password("iadmin").roles("ADMIN");
     }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http
-
-                .csrf().disable()
-//                .cors().disable()
-                .cors().configurationSource(corsConfig)
-                .and()
-                .authorizeRequests()
-                .regexMatchers("/",
-                        "/webjars/.*", // used by swagger
-                        "/swagger-.*", // used by swagger
-                        "/css/.*",
-                        "/alumni",
-                        "/login")
-                .permitAll()
-                .and()
-
-                .authorizeRequests()
-                .anyRequest()
-                .authenticated()
-                .and()
-
-                .formLogin().loginPage("/login")
-                .and()
-                .httpBasic()
-        ;
-
-//        http.cors();
+       http
+               .csrf().disable()
+               .cors().configurationSource(corsConfig)
+               .and()
+               .authorizeRequests()
+               .antMatchers("/alumnisnotactivated",
+                       "/denyalumni",
+                       "/validatealumni"
+                       ).hasRole("ADMIN")
+               .and()
+               .authorizeRequests()
+               .antMatchers(//"/",
+                       "/webjars/.*", // used by swagger
+                       "/swagger-.*", // used by swagger
+                       "/css/.*",
+                       //"/alumni",
+                       "/login").permitAll()
+               .and()
+               .authorizeRequests()
+               .anyRequest()
+               .authenticated()
+               .and()
+               .formLogin().loginPage("/login")
+               .and()
+               .httpBasic();
 
     }
 
@@ -83,7 +81,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) {
         //TODO REMOVE ALUMNISNOTACTIVATED, VALIDATEALUMNI AND DENYALUMNI FROM HERE
-        web.ignoring().antMatchers("/v2/api-docs","/alumnisnotactivated","/validatealumni/{id}","/denyalumni/{id}",
+        web.ignoring().antMatchers("/v2/api-docs",
                 "/configuration/ui",
                 "/swagger-resources",
                 "/configuration/security",
