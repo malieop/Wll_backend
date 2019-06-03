@@ -97,7 +97,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/**")
-                    .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH");
+                    .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH")
+                    .allowedHeaders("Access-Control-Allow-Origin");
         }
     }
 
@@ -126,6 +127,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         allowedHeaders.add("Authorization");
         allowedHeaders.add("Cache-Control");
         allowedHeaders.add("Content-Type");
+        allowedHeaders.add("Access-Control-Allow-Origin");
         // setAllowedHeaders is important! Without it, OPTIONS preflight request
         // will fail with 403 Invalid CORS request
         configuration.setAllowedHeaders(allowedHeaders);
