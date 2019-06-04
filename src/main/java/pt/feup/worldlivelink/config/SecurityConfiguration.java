@@ -63,7 +63,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/webjars/.*", // used by swagger
                         "/swagger-.*", // used by swagger
                         "/css/.*",
-                        "/login").permitAll()
+                        "/login" ,
+                        "/createalumni").permitAll()
                 .and()
                 .authorizeRequests()
                 .antMatchers("/alumni").hasRole("USER")
