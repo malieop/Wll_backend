@@ -74,6 +74,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin().loginPage("/login")
                 .and()
+                .logout()
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .and()
                 .httpBasic();
 //        http.cors();
 
@@ -83,7 +87,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-        //TODO REMOVE ALUMNISNOTACTIVATED, VALIDATEALUMNI AND DENYALUMNI FROM HERE
         web.ignoring().antMatchers("/v2/api-docs",
                 "/configuration/ui",
                 "/swagger-resources",
